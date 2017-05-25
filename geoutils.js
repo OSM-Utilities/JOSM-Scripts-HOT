@@ -1,4 +1,6 @@
-
+/*
+Bjoern Hassler - http://bjohas.de
+*/
 function offset(lat1, lon1, lat2, lon2, lat3, lon3,d) {
     // In a line segment p1->p2->p3, find a point P offset from p2, bisecting the angle.
     var lat;
