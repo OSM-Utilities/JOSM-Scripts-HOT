@@ -4,7 +4,7 @@ Bjoern Hassle, http://bjohas.de
 
 Run like this:
 
-var a= require("JOSM-Scripts-HOT/addLayerWay.js");
+var a= require("JOSM-Scripts-HOT/examples/addLayerWay.js");
 a.addLayerWay();
 */
 (function() {   

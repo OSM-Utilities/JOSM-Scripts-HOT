@@ -3,11 +3,11 @@ gyslerc
 Bjoern Hassle, http://bjohas.de
 
 Run like this:
-var a= require("JOSM-Scripts-HOT/addLayerWay_args.js");
+var a= require("JOSM-Scripts-HOT/examples/addLayerWay_args.js");
 a.addLayerWay_args("layerName","wayKey","wayValue", lat, lon, size);
 
 Example:
-var a= require("JOSM-Scripts-HOT/addLayerWay_args.js");
+var a= require("JOSM-Scripts-HOT/examples/addLayerWay_args.js");
 a.addLayerWay_args("ResidentialAreas","landuse","residential",-2.743, 34.08, 1);
 */
 (function() {       
