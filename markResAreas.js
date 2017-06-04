@@ -7,7 +7,7 @@ var a= require("JOSM-Scripts-HOT/markResAreas.js");
 a.showStats(distance, min number of buildings in a residential area, layerName, tagKey "landuse", tagValue"residential", Use only first node for clustering "true"/ "false");
 
 example:
-var a= require("markResAreas.js");
+var a= require("JOSM-Scripts-HOT/markResAreas.js");
 a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true");
 */
 (function() {
