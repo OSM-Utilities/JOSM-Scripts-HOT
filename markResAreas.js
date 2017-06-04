@@ -7,7 +7,7 @@ var a= require("JOSM-Scripts-HOT/markResAreas.js");
 a.showStats(distance, min number of buildings in a residential area, layerName, tagKey "landuse", tagValue"residential", Use only first node for clustering "true"/ "false");
 
 example:
-var a= require("JOSM-Scripts-HOT/markResAreas.js");
+var a= require("markResAreas.js");
 a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true");
 */
 (function() {
@@ -15,24 +15,13 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true");
     var console = require("josm/scriptingconsole");
     var layers = require("josm/layers");
 	
-    exports.showStats = function() {
-	var	distance=arguments[0];
-	var	minNumBldgInResArea=arguments[1];
-	var	layerName=arguments[2];
-	var	key=arguments[3];
-	var	value=arguments[4];	
-	var useFirstNodeOnly=arguments[5];
+    exports.showStats = function(distance, minNumBldgInResArea,layerName,key,value,useFirstNodeOnly) {
 	var tagName={}
 	tagName[key]=value;	
 	console.clear();
-    console.println("Hello, calculating... ");	
+    console.println("Hello, calculating..");	
 	var layer = current_layer(layers); 
 	var buildings = countObjects(layer, useFirstNodeOnly); //Find subset of buildings
-	var allNodes = buildings.allNodes;   
-	var layerNew=addlayer(layerName,console,layers);
-	var cluster = dbAndGrahamScan(allNodes,distance,minNumBldgInResArea,tagName,layerNew,console);
-	var areasNew = countObjects(layerNew,"true"); 
-
 	console.println("Number of nodes: " + buildings.numNodes);
 	console.println("Number of node-buildings: " + buildings.numNodeBuildings);
 	console.println("Number of ways: " + buildings.numWays );
@@ -40,18 +29,19 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true");
 	console.println("Number of area-buildings: " + buildings.numBuildings);
 	console.println("Number of residential areas: " + buildings.numResidential);
 	console.println("Number of nodes used in clustering: " + buildings.numAllNodes);
+	var layerNew=addlayer(layerName);
+	var cluster = dbAndGrahamScan(buildings.allNodes,distance,minNumBldgInResArea,tagName,layerNew);
+	var areasNew = countObjects(layerNew,"true"); 
 	console.println("Number of residential areas in new layer: " + areasNew.numAreas );	
 	console.println("Done!");	
     };
 
-    function current_layer() {
-	layers = arguments[0];
+    function current_layer(layers) {
+	console.println("Active layer is " + layers.activeLayer.name)
 	return layers.activeLayer;
     }
 
-    function countObjects() {
-	var layer = arguments[0];
-	var useFirstNodeOnly=arguments[1];
+    function countObjects(layer,useFirstNodeOnly) {
 	var dataset = layer.data;
 	var result = dataset.query("type:way");
 	var numAreas = 0;
@@ -108,14 +98,7 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true");
 	};
     };	
 
-	function dbAndGrahamScan() { 
-	dataset=arguments[0];
-	distance=arguments[1];
-	minNumBldgInResArea=arguments[2];
-	tagName=arguments[3];
-	layer=arguments[4];
-	console=arguments[5];
-	
+	function dbAndGrahamScan(dataset,distance,minNumBldgInResArea,tagName,layer) { 
 	const DBSCAN = require("DBSCAN.js");
 	const graham_scan = require("graham_scan");
 	var command = require("josm/command");
@@ -163,15 +146,12 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true");
 //	console.println(resAreaAll);	
 	}	
 
-	function addlayer(){
-	layerName=arguments[0];
-	console=arguments[1];
-	layers=arguments[2];
-	console.println("layerName: " + layerName);
+	function addlayer(layerName){
 	//create a new layer with 'layerName'
 	var b = layers.has(layerName); 
 	if(b==false){ layer = josm.layers.addDataLayer(layerName);}
 	else{layer=layers.get(layerName);}
+	console.println("Adding identified residential areas to layer named " + layer.name);
 	return layer;
 	};
 		
