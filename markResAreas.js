@@ -33,9 +33,8 @@ a.showStats(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
 	tagName[key]=value;	
 	console.clear();
 	console.println("Hello, calculating..");	
-	// Convert distance in m to distance in latitude at the equator
 	var distance = distancem / 6371e3 / rad;
-	//TODO: it would be better to get the average latitude, and then use that in the conversion conversation...
+	console.println("distance = "+distancem+" = "+distance + " deg lat");	
 	var layer = current_layer(layers); 
 	var buildings = countObjects(layer, useFirstNodeOnly); //Find subset of buildings
 	console.println("Number of nodes: " + buildings.numNodes);
@@ -46,11 +45,12 @@ a.showStats(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
 	console.println("Number of residential areas: " + buildings.numResidential);
 	console.println("Number of nodes used in clustering: " + buildings.numAllNodes);
 	var layerNew = addLayer(layerName);
+	//TODO: We should allow anything here - just need to deal with the degenerate cases below.
 	if (minNumBldgInResArea<3) { minNumBldgInResArea=3; }
 	var cluster = dbAndGrahamScan(buildings.allNodes,distance,minNumBldgInResArea,tagName,layerNew,bufferDistm);
 	var areasNew = countObjects(layerNew,"true"); 
 	console.println("Number of residential areas in new layer: " + areasNew.numAreas );	
-	console.println("Done!");	
+	console.println("Done!");
     };
 
     function current_layer(layers) {
@@ -130,7 +130,7 @@ a.showStats(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
 	// This adjusts for unequal spacing in lat/lon:
 	if (dataset.length > 0)
 	    dataset.forEach( function(latlon) {
-		latlon[1] /= Math.cos(rad * latlon[0]);
+		latlon[1] *= Math.cos(rad * latlon[0]);
 	    });
 	return dataset;
     }
@@ -139,7 +139,7 @@ a.showStats(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
 	// This does the reverse, but on a slightly different structure
 	if (dataset.length > 0)
 	    dataset.forEach( function(latlon) {
-		latlon.y *= Math.cos(rad * latlon.x);
+		latlon.y /= Math.cos(rad * latlon.x);
 	    });
 	return dataset;
     }
