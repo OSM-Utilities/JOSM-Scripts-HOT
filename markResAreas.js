@@ -4,11 +4,19 @@ Bjoern Hassler, http://bjohas.de
 
 Run like this:
 var a= require("JOSM-Scripts-HOT/markResAreas.js");
-a.showStats(distance, min number of buildings in a residential area, layerName, tagKey "landuse", tagValue"residential", Use only first node for clustering "true"/ "false", Buffer distance in meters);
+a.showStats(distance between buildings in metres, 
+            min number of buildings in a residential area, 
+            layerName, 
+            tagKey "landuse", 
+            tagValue"residential", 
+            Use only first node for clustering "true"/ "false", 
+            Buffer distance in meters);
 
 example:
+
 var a= require("JOSM-Scripts-HOT/markResAreas.js");
-a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
+a.showStats(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
+
 */
 (function() {
     var util = require("josm/util");
@@ -18,12 +26,15 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
     var wb = require("josm/builder").WayBuilder;
     var command = require("josm/command");	
     var geoutils = require("JOSM-Scripts-HOT/geoutils.js");
+    const rad = Math.PI/180;
     
-    exports.showStats = function(distance, minNumBldgInResArea,layerName,key,value,useFirstNodeOnly, bufferDistm) {
+    exports.showStats = function(distancem, minNumBldgInResArea,layerName,key,value,useFirstNodeOnly, bufferDistm) {
 	var tagName={}
 	tagName[key]=value;	
 	console.clear();
 	console.println("Hello, calculating..");	
+	// Convert distance in m to distance in latitude
+	var distance = distancem / 6371e3 / rad;
 	var layer = current_layer(layers); 
 	var buildings = countObjects(layer, useFirstNodeOnly); //Find subset of buildings
 	console.println("Number of nodes: " + buildings.numNodes);
@@ -65,13 +76,20 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
 		var type = way.tags.building;
 		if(type)
 		{  
-	            if(useFirstNodeOnly=="true"){allNodes[numAllNodes]=[result[j].firstNode().lat,  result[j].firstNode().lon];  numAllNodes++; }
-		    else{nodesinBuilding=result[j].nodes; 
-			 for(i=0; i<nodesinBuilding.length; i++){
-			     allNodes[numAllNodes]=[nodesinBuilding[i].lat, nodesinBuilding[i].lon];  
-			     numAllNodes++;
-			 }
+	            if(useFirstNodeOnly=="true") {
+			allNodes[numAllNodes]=[result[j].firstNode().lat,  result[j].firstNode().lon];
+			numAllNodes++;
+		    } else {
+			nodesinBuilding=result[j].nodes; 
+			for(i=0; i<nodesinBuilding.length; i++){
+			    // This adjusts for unequal spacing in lat/lon:
+			    // Doesn't work yet.
+			    // var factor = 1 / Math.cos(rad * nodesinBuilding[i].lat);
+			    var factor = 1;
+			    allNodes[numAllNodes]=[nodesinBuilding[i].lat, nodesinBuilding[i].lon * factor];  
+			    numAllNodes++;
 			}
+		    }
 		    numBuildings++; 
 		}
 		if (way.tags.landuse) {
@@ -108,18 +126,17 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
 	const DBSCAN = require("JOSM-Scripts-HOT/DBSCAN.js");
 	const graham_scan = require("JOSM-Scripts-HOT/graham_scan.js");
 
-	console.println("db scan");
+	//console.println("db scan");
 	var dbscan = new DBSCAN();
 	var clusters = dbscan.run(dataset, distance, minNumBldgInResArea); 
 	console.println("Total number of clusters found: " + clusters.length); 
 
-	console.println("graham scan");
+	//console.println("graham scan");
 	var convexHull=[];
 	var hullPoints=[];
 	var idx, latlon;
 	for(i=0; i<clusters.length; i++)
 	{
-	    console.println(i);
 	    convexHull[i] = new graham_scan(); //new convex hull for each cluster
 	    for(j=0; j<clusters[i].length; j++) 
 	    {
