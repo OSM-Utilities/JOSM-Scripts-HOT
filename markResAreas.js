@@ -33,8 +33,9 @@ a.showStats(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
 	tagName[key]=value;	
 	console.clear();
 	console.println("Hello, calculating..");	
-	// Convert distance in m to distance in latitude
+	// Convert distance in m to distance in latitude at the equator
 	var distance = distancem / 6371e3 / rad;
+	//TODO: it would be better to get the average latitude, and then use that in the conversion conversation...
 	var layer = current_layer(layers); 
 	var buildings = countObjects(layer, useFirstNodeOnly); //Find subset of buildings
 	console.println("Number of nodes: " + buildings.numNodes);
@@ -76,6 +77,13 @@ a.showStats(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
 		var type = way.tags.building;
 		if(type)
 		{  
+		    /*
+		      TODO: The are some 'degenerate' cases.
+		      E.g. three node buildings on one line
+		      E.g. a building with a large side length (compared to clustering length), and several points down the side on one line
+		      The offset agorithm will still work, but because the objects don't 'span a plane', they will end up on the boundary of the area.
+		      The offset algorithm notices these straight segments, and a possible solution is to add both points (lef/right of the segment) and then run the hull algrithm again on those points.
+		     */
 	            if(useFirstNodeOnly=="true") {
 			allNodes[numAllNodes]=[result[j].firstNode().lat,  result[j].firstNode().lon];
 			numAllNodes++;
