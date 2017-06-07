@@ -1,6 +1,6 @@
 /*
 gyslerc
-Bjoern Hassle, http://bjohas.de
+Bjoern Hassler, http://bjohas.de
 
 Run like this:
 var a= require("JOSM-Scripts-HOT/markResAreas.js");
@@ -14,15 +14,15 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
     var util = require("josm/util");
     var console = require("josm/scriptingconsole");
     var layers = require("josm/layers");
-	var nb = require("josm/builder").NodeBuilder; 
-	var wb = require("josm/builder").WayBuilder;
-	var command = require("josm/command");	
-	
+    var nb = require("josm/builder").NodeBuilder; 
+    var wb = require("josm/builder").WayBuilder;
+    var command = require("josm/command");	
+    
     exports.showStats = function(distance, minNumBldgInResArea,layerName,key,value,useFirstNodeOnly, bufferDistm) {
 	var tagName={}
 	tagName[key]=value;	
 	console.clear();
-    console.println("Hello, calculating..");	
+	console.println("Hello, calculating..");	
 	var layer = current_layer(layers); 
 	var buildings = countObjects(layer, useFirstNodeOnly); //Find subset of buildings
 	console.println("Number of nodes: " + buildings.numNodes);
@@ -64,14 +64,14 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
 		var type = way.tags.building;
 		if(type)
 		{  
-	        if(useFirstNodeOnly=="true"){allNodes[numAllNodes]=[result[j].firstNode().lat,  result[j].firstNode().lon];  numAllNodes++; }
-			else{nodesinBuilding=result[j].nodes; 
-				for(i=0; i<nodesinBuilding.length; i++){
-				allNodes[numAllNodes]=[nodesinBuilding[i].lat, nodesinBuilding[i].lon];  
-				numAllNodes++;
-				}
+	            if(useFirstNodeOnly=="true"){allNodes[numAllNodes]=[result[j].firstNode().lat,  result[j].firstNode().lon];  numAllNodes++; }
+		    else{nodesinBuilding=result[j].nodes; 
+			 for(i=0; i<nodesinBuilding.length; i++){
+			     allNodes[numAllNodes]=[nodesinBuilding[i].lat, nodesinBuilding[i].lon];  
+			     numAllNodes++;
+			 }
 			}
-			numBuildings++; 
+		    numBuildings++; 
 		}
 		if (way.tags.landuse) {
 		    if (way.tags.landuse==="residential") {
@@ -97,12 +97,12 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
 	    numNodes: numNodes,
 	    numNodeBuildings: numNodeBuildings,
 	    numResidential: numResidential,
-		allNodes:allNodes,
-		numAllNodes:numAllNodes
+	    allNodes:allNodes,
+	    numAllNodes:numAllNodes
 	};
     };	
 
-	function dbAndGrahamScan(dataset,distance,minNumBldgInResArea,tagName,layer,bufferDistm) { 
+    function dbAndGrahamScan(dataset,distance,minNumBldgInResArea,tagName,layer,bufferDistm) { 
 	const DBSCAN = require("DBSCAN.js");
 	const graham_scan = require("graham_scan");
 	var dbscan = new DBSCAN();
@@ -115,17 +115,17 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
 	console.println("Total number of clusters found: " + clusters.length); 
 	for(i=0; i<clusters.length; i++)
 	{
-		convexHull[i] = new graham_scan(); //new convex hull for each cluster
-		for(j=0; j<clusters[i].length; j++) 
-		{
+	    convexHull[i] = new graham_scan(); //new convex hull for each cluster
+	    for(j=0; j<clusters[i].length; j++) 
+	    {
 		idx=clusters[i][j];
 		latlon=dataset[idx];
 		convexHull[i].addPoint(latlon[0], latlon[1]);
-		}
-		hullPoints= convexHull[i].getHull(); // returns an array of objects [Point{x:10, y:20}, Point{x:...}...]
-		nodes=[];
-		for(j=0; j<hullPoints.length; j++)  // extract coordinates of hull, offset coordinates
-		{ 		
+	    }
+	    hullPoints= convexHull[i].getHull(); // returns an array of objects [Point{x:10, y:20}, Point{x:...}...]
+	    nodes=[];
+	    for(j=0; j<hullPoints.length; j++)  // extract coordinates of hull, offset coordinates
+	    { 		
 		var lat1=hullPoints[j].x;
 		var lon1=hullPoints[j].y;
 		x=(j+1)%hullPoints.length;
@@ -136,85 +136,85 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
 		var lon3=hullPoints[x].y;	
 		var offsetpoint=offset(lat1, lon1, lat2, lon2, lat3, lon3, bufferDistm);
 		nodes[j] = drawNode(offsetpoint.lat,offsetpoint.lon); 
-		}	
-		nodes[j+1]=nodes[0];		
-		drawWays(nodes,tagName,layer);
+	    }	
+	    nodes[j+1]=nodes[0];		
+	    drawWays(nodes,tagName,layer);
 	}
 
-	}	
+    }	
 
-	function addlayer(layerName){
+    function addlayer(layerName){
 	//create a new layer with 'layerName'
 	var b = layers.has(layerName); 
 	if(b==false){ layer = josm.layers.addDataLayer(layerName);}
 	else{layer=layers.get(layerName);}
 	console.println("Adding identified residential areas to layer named " + layer.name);
 	return layer;
-	};
+    };
 
-	function drawNode(lat, lon,layer){
+    function drawNode(lat, lon,layer){
 	// create a node at specified lat and lon
 	var node=nb.withPosition(lat, lon).create(); 
 	return node;
-	};	
-	
-	function drawWays(nodeVecIn,tagName,layer){
+    };	
+    
+    function drawWays(nodeVecIn,tagName,layer){
 	// create a way from vector of nodes and add them to layer
 	var w2=wb.withNodes(nodeVecIn).withTags(tagName).create();
 	command.add(nodeVecIn).applyTo(layer)
 	command.add(w2).applyTo(layer)
-	};		
-	
-	function offset(lat1, lon1, lat2, lon2, lat3, lon3,d) {
-    // In a line segment p1->p2->p3, find a point P offset from p2, bisecting the angle.
-    var lat;
-    var lon;
-    var rad = Math.PI/180;
-    lat1 *= rad;
-    lat2 *= rad;
-    lat3 *= rad;
-    lon1 *= rad;
-    lon2 *= rad;
-    lon3 *= rad;	
-    var b1 = bearing(lat1, lon1, lat2, lon2);
-    var b2 = bearing(lat2, lon2, lat3, lon3);
-    var angle =(b1-b2);
-  /*while (angle <= -Math.PI) {
-	angle += 2*Math.PI;
+    };		
+    
+    function offset(lat1, lon1, lat2, lon2, lat3, lon3,d) {
+	// In a line segment p1->p2->p3, find a point P offset from p2, bisecting the angle.
+	var lat;
+	var lon;
+	var rad = Math.PI/180;
+	lat1 *= rad;
+	lat2 *= rad;
+	lat3 *= rad;
+	lon1 *= rad;
+	lon2 *= rad;
+	lon3 *= rad;	
+	var b1 = bearing(lat1, lon1, lat2, lon2);
+	var b2 = bearing(lat2, lon2, lat3, lon3);
+	var angle =(b1-b2);
+	/*while (angle <= -Math.PI) {
+	  angle += 2*Math.PI;
+	  };
+	  while (angle > Math.PI) {
+	  angle -= 2*Math.PI;
+	  };
+	  if (angle < 0) {
+	  angle += 2*Math.PI;
+	  };*/
+	angle = b1 - angle/2 - Math.PI/2;
+	var offsetlatlon = transport(lat2, lon2, angle, d);
+	lat=offsetlatlon.lat/rad;
+	lon=offsetlatlon.lon/rad;
+	return{lat:lat, lon:lon};
     };
-    while (angle > Math.PI) {
-	angle -= 2*Math.PI;
-    };
-    if (angle < 0) {
-	angle += 2*Math.PI;
-    };*/
-    angle = b1 - angle/2 - Math.PI/2;
-    var offsetlatlon = transport(lat2, lon2, angle, d);
-    lat=offsetlatlon.lat/rad;
-    lon=offsetlatlon.lon/rad;
-    return{lat:lat, lon:lon};
-	};
 
-// https://stackoverflow.com/questions/2187657/calculate-second-point-knowing-the-starting-point-and-distance
-// https://stackoverflow.com/questions/7222382/get-lat-long-given-current-point-distance-and-bearing
-	function transport(lat1,lon1,brng,d) {
-    // Starting from lat1,lon2 go in bearing angle for distance dist
-    R = 6371e3;
+    // https://stackoverflow.com/questions/2187657/calculate-second-point-knowing-the-starting-point-and-distance
+    // https://stackoverflow.com/questions/7222382/get-lat-long-given-current-point-distance-and-bearing
+    function transport(lat1,lon1,brng,d) {
+	// Starting from lat1,lon2 go in bearing angle for distance dist
+	R = 6371e3;
 	var lat = Math.asin( Math.sin(lat1)*Math.cos(d/R) +
-                    Math.cos(lat1)*Math.sin(d/R)*Math.cos(brng) );
+			     Math.cos(lat1)*Math.sin(d/R)*Math.cos(brng) );
 	var lon = lon1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(lat1),
-                         Math.cos(d/R)-Math.sin(lat1)*Math.sin(lat));
-    return{lat:lat,lon:lon};
-	};
-// http://www.movable-type.co.uk/scripts/latlong.html
-	function bearing(lat1, lon1, lat2, lon2) {
-    // Calculate the bearing from p1 to p2, provided as four coords    
+				    Math.cos(d/R)-Math.sin(lat1)*Math.sin(lat));
+	return{lat:lat,lon:lon};
+    };
+    // http://www.movable-type.co.uk/scripts/latlong.html
+    function bearing(lat1, lon1, lat2, lon2) {
+	// Calculate the bearing from p1 to p2, provided as four coords    
 	var y = Math.sin(lon2-lon1) * Math.cos(lat2);
 	var x = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1);
 	var brng = Math.atan2(y, x);	
-    return brng;
-	};
-	
+	return brng;
+    };
+    
 }());
 
 
