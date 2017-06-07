@@ -15,7 +15,7 @@ a.showStats(distance between buildings in metres,
 example:
 
 var a= require("JOSM-Scripts-HOT/markResAreas.js");
-a.showStats(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
+a.markAreas(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
 
 */
 (function() {
@@ -28,7 +28,7 @@ a.showStats(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
     var geoutils = require("JOSM-Scripts-HOT/geoutils.js");
     const rad = Math.PI/180;
     
-    exports.showStats = function(distancem, minNumBldgInResArea,layerName,key,value,useFirstNodeOnly, bufferDistm) {
+    exports.markAreas = function(distancem, minNumBldgInResArea,layerName,key,value,useFirstNodeOnly, bufferDistm) {
 	var tagName={}
 	tagName[key]=value;	
 	console.clear();
