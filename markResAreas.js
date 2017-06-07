@@ -82,11 +82,7 @@ a.showStats(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
 		    } else {
 			nodesinBuilding=result[j].nodes; 
 			for(i=0; i<nodesinBuilding.length; i++){
-			    // This adjusts for unequal spacing in lat/lon:
-			    // Doesn't work yet.
-			    // var factor = 1 / Math.cos(rad * nodesinBuilding[i].lat);
-			    var factor = 1;
-			    allNodes[numAllNodes]=[nodesinBuilding[i].lat, nodesinBuilding[i].lon * factor];  
+			    allNodes[numAllNodes]=[nodesinBuilding[i].lat, nodesinBuilding[i].lon];  
 			    numAllNodes++;
 			}
 		    }
@@ -121,13 +117,37 @@ a.showStats(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
 	};
     };	
 
+
+    function flatten(dataset) {
+	// This adjusts for unequal spacing in lat/lon:
+	if (dataset.length > 0)
+	    dataset.forEach( function(latlon) {
+		latlon[1] /= Math.cos(rad * latlon[0]);
+	    });
+	return dataset;
+    }
+
+    function unflatten(dataset) {
+	// This does the reverse, but on a slightly different structure
+	if (dataset.length > 0)
+	    dataset.forEach( function(latlon) {
+		latlon.y *= Math.cos(rad * latlon.x);
+	    });
+	return dataset;
+    }
+
+    
     function dbAndGrahamScan(dataset,distance,minNumBldgInResArea,tagName,layer,bufferDistm) { 
 
 	const DBSCAN = require("JOSM-Scripts-HOT/DBSCAN.js");
 	const graham_scan = require("JOSM-Scripts-HOT/graham_scan.js");
 
+	dataset = flatten(dataset);
+	
 	//console.println("db scan");
 	var dbscan = new DBSCAN();
+
+	//TODO: minNumBldgInResArea doesn't quite work here - because if you work on 'all nodes' minNumBldgInResArea is compared to all nodes, rather than buildings.
 	var clusters = dbscan.run(dataset, distance, minNumBldgInResArea); 
 	console.println("Total number of clusters found: " + clusters.length); 
 
@@ -145,6 +165,7 @@ a.showStats(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
 		convexHull[i].addPoint(latlon[0], latlon[1]);
 	    }
 	    hullPoints= convexHull[i].getHull(); // returns an array of objects [Point{x:10, y:20}, Point{x:...}...]
+	    hullPoints = unflatten(hullPoints);
 	    nodes=[];
 	    // Points are returned clockwise, but "offset" expects anti-clockwise. Change sign on bufferDistm.
 	    var negbufferDistm = - bufferDistm;

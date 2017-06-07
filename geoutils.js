@@ -7,7 +7,7 @@ Bjoern Hassler - http://bjohas.de
 	// The point is offset to the right, i.e. if p1->p2->p3->p1 are traversed anti-clockwise, offset points are on the outside.
 	var lat;
 	var lon;
-	var rad = Math.PI/180;
+	const rad = Math.PI/180;
 	lat1 *= rad;
 	lat2 *= rad;
 	lat3 *= rad;
@@ -37,7 +37,7 @@ Bjoern Hassler - http://bjohas.de
     // https://stackoverflow.com/questions/7222382/get-lat-long-given-current-point-distance-and-bearing
     function transport(lat1,lon1,brng,d) {
 	// Starting from lat1,lon2 go in bearing angle for distance dist
-	R = 6371e3;
+	const R = 6371e3;
 	var lat = Math.asin( Math.sin(lat1)*Math.cos(d/R) +
 			     Math.cos(lat1)*Math.sin(d/R)*Math.cos(brng) );
 	var lon = lon1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(lat1),
