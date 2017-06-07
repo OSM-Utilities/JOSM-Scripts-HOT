@@ -32,8 +32,8 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
 	console.println("Number of area-buildings: " + buildings.numBuildings);
 	console.println("Number of residential areas: " + buildings.numResidential);
 	console.println("Number of nodes used in clustering: " + buildings.numAllNodes);
-	var layerNew=addlayer(layerName);
-	if(minNumBldgInResArea<3){minNumBldgInResArea=3;}
+	var layerNew = addLayer(layerName);
+	if (minNumBldgInResArea<3) { minNumBldgInResArea=3; }
 	var cluster = dbAndGrahamScan(buildings.allNodes,distance,minNumBldgInResArea,tagName,layerNew,bufferDistm);
 	var areasNew = countObjects(layerNew,"true"); 
 	console.println("Number of residential areas in new layer: " + areasNew.numAreas );	
@@ -103,18 +103,22 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
     };	
 
     function dbAndGrahamScan(dataset,distance,minNumBldgInResArea,tagName,layer,bufferDistm) { 
-	const DBSCAN = require("DBSCAN.js");
-	const graham_scan = require("graham_scan");
+
+	const DBSCAN = require("JOSM-Scripts-HOT/DBSCAN.js");
+	const graham_scan = require("JOSM-Scripts-HOT/graham_scan.js");
+
+	console.println("db scan");
 	var dbscan = new DBSCAN();
 	var clusters = dbscan.run(dataset, distance, minNumBldgInResArea); 
+	console.println("Total number of clusters found: " + clusters.length); 
 
+	console.println("graham scan");
 	var convexHull=[];
 	var hullPoints=[];
-
 	var idx, latlon;
-	console.println("Total number of clusters found: " + clusters.length); 
 	for(i=0; i<clusters.length; i++)
 	{
+	    console.println(i);
 	    convexHull[i] = new graham_scan(); //new convex hull for each cluster
 	    for(j=0; j<clusters[i].length; j++) 
 	    {
@@ -124,35 +128,40 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
 	    }
 	    hullPoints= convexHull[i].getHull(); // returns an array of objects [Point{x:10, y:20}, Point{x:...}...]
 	    nodes=[];
+	    // Points are returned clockwise, but "offset" expects anti-clockwise. Change sign on bufferDistm.
+	    var negbufferDistm = - bufferDistm;
 	    for(j=0; j<hullPoints.length; j++)  // extract coordinates of hull, offset coordinates
-	    { 		
+	    {
 		var lat1=hullPoints[j].x;
 		var lon1=hullPoints[j].y;
 		x=(j+1)%hullPoints.length;
 		var lat2=hullPoints[x].x;
 		var lon2=hullPoints[x].y;
-		x=(j+2)%hullPoints.length;		
+		x=(j+2)%hullPoints.length;
 		var lat3=hullPoints[x].x;
-		var lon3=hullPoints[x].y;	
-		var offsetpoint=offset(lat1, lon1, lat2, lon2, lat3, lon3, bufferDistm);
-		nodes[j] = drawNode(offsetpoint.lat,offsetpoint.lon); 
-	    }	
-	    nodes[j+1]=nodes[0];		
+		var lon3=hullPoints[x].y;
+		var offsetpoint=offset(lat1, lon1, lat2, lon2, lat3, lon3, negbufferDistm);
+		nodes[j] = drawNode(offsetpoint.lat,offsetpoint.lon);
+	    }
+	    nodes[j+1]=nodes[0];
 	    drawWays(nodes,tagName,layer);
 	}
 
     }	
 
-    function addlayer(layerName){
+    function addLayer(layerName){
 	//create a new layer with 'layerName'
 	var b = layers.has(layerName); 
-	if(b==false){ layer = josm.layers.addDataLayer(layerName);}
-	else{layer=layers.get(layerName);}
+	if(b==false){
+	    layer = josm.layers.addDataLayer(layerName);
+	} else {
+	    layer=layers.get(layerName);
+	}
 	console.println("Adding identified residential areas to layer named " + layer.name);
 	return layer;
     };
 
-    function drawNode(lat, lon,layer){
+    function drawNode(lat, lon){
 	// create a node at specified lat and lon
 	var node=nb.withPosition(lat, lon).create(); 
 	return node;
@@ -167,6 +176,7 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
     
     function offset(lat1, lon1, lat2, lon2, lat3, lon3,d) {
 	// In a line segment p1->p2->p3, find a point P offset from p2, bisecting the angle.
+	// The point is offset to the right, i.e. if p1->p2->p3->p1 are traversed anti-clockwise, offset points are on the outside.
 	var lat;
 	var lon;
 	var rad = Math.PI/180;
@@ -179,20 +189,20 @@ a.showStats(0.001, 3, "ResAreaLayer", "landuse", "residential", "true", 20);
 	var b1 = bearing(lat1, lon1, lat2, lon2);
 	var b2 = bearing(lat2, lon2, lat3, lon3);
 	var angle =(b1-b2);
-	/*while (angle <= -Math.PI) {
-	  angle += 2*Math.PI;
-	  };
-	  while (angle > Math.PI) {
-	  angle -= 2*Math.PI;
-	  };
-	  if (angle < 0) {
-	  angle += 2*Math.PI;
-	  };*/
+	while (angle <= -Math.PI) {
+	    angle += 2*Math.PI;
+	};
+	while (angle > Math.PI) {
+	    angle -= 2*Math.PI;
+	};
+	if (angle < 0) {
+	    angle += 2*Math.PI;
+	};
 	angle = b1 - angle/2 - Math.PI/2;
 	var offsetlatlon = transport(lat2, lon2, angle, d);
 	lat=offsetlatlon.lat/rad;
 	lon=offsetlatlon.lon/rad;
-	return{lat:lat, lon:lon};
+	return {lat:lat, lon:lon};
     };
 
     // https://stackoverflow.com/questions/2187657/calculate-second-point-knowing-the-starting-point-and-distance
