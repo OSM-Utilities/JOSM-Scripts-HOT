@@ -16,6 +16,7 @@
   a.nodeBuilding2Way(20, "building", "expanded from nodeBuilding");
 
 */
+
 (function() {
     var util = require("josm/util");
     var console = require("josm/scriptingconsole");
