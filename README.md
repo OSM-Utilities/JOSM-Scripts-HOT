@@ -12,3 +12,9 @@ Utilities:
 - geoutils.js
 
 Further examples are provided in the examples folder.
+
+
+Helpful links:
+- JOSM scripting plugin https://github.com/Gubaer/josm-scripting-plugin
+- Documentation: http://gubaer.github.io/josm-scripting-plugin/
+- API for Javascript: http://gubaer.github.io/josm-scripting-plugin/apidoc/namespaces/josm.html
