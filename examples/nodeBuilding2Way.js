@@ -1,18 +1,19 @@
- /*
-gyslerc
-Bjoern Hassler, http://bjohas.de
+/*
+  gyslerc
+  Bjoern Hassler, http://bjohas.de
 
-Run like this:
-var a= require("JOSM-Scripts-HOT/examples/nodeBuilding2Way.js");
-a.nodeBuilding2Way(distance on each side of node, 
-            tagKey "building", 
-            tagValue"expanded from nodeBuilding", 
-    =		);
+  Run like this:
 
-example:
+  var a= require("JOSM-Scripts-HOT/examples/nodeBuilding2Way.js");
+  a.nodeBuilding2Way(distance on each side of node in metres, 
+        tagKey "building", 
+        tagValue "expanded from nodeBuilding", 
+  );
 
-var a= require("JOSM-Scripts-HOT/examples/nodeBuilding2Way.js");
-a.nodeBuilding2Way(20, "building", "expanded from nodeBuilding");
+  example:
+
+  var a= require("JOSM-Scripts-HOT/examples/nodeBuilding2Way.js");
+  a.nodeBuilding2Way(20, "building", "expanded from nodeBuilding");
 
 */
 (function() {
@@ -32,9 +33,9 @@ a.nodeBuilding2Way(20, "building", "expanded from nodeBuilding");
 	var layer = current_layer(layers); 
 	var buildings = countNodeBuildings(layer); //Find subset of node buildings
 	console.println("Number of node-buildings: " + buildings.numNodeBuildings);
-    expandNodeBuilding(layer,buildings.nodeBuildings,distance,tagName);
-	};
-	
+	expandNodeBuilding(layer,buildings.nodeBuildings,distance,tagName);
+    };
+    
     function countNodeBuildings(layer) {
 	var dataset = layer.data;
 	var nodeBuildings=[];
@@ -54,19 +55,19 @@ a.nodeBuilding2Way(20, "building", "expanded from nodeBuilding");
 	};
     };	
 
-	function expandNodeBuilding(layer,nodeBuilding,d, tagName) {
+    function expandNodeBuilding(layer,nodeBuilding,d, tagName) {
 	var dist=d*Math.sqrt(2);
 	var tagDone={};
 	tagDone["building"]="";
 	for(i=0; i<nodeBuilding.length; i++)
 	{
-     var nodes=[];
-	 var lat=nodeBuilding[i].lat*rad;
-	 var lon=nodeBuilding[i].lon*rad;
-	 for(j=0; j<4; j++)
-	 {  
+	    var nodes=[];
+	    var lat=nodeBuilding[i].lat*rad;
+	    var lon=nodeBuilding[i].lon*rad;
+	    for(j=0; j<4; j++)
+	    {  
 		var brng=Math.PI/4+j*Math.PI/2;
-     	var offsetpoint=transport(lat,lon,brng,dist);
+     		var offsetpoint=transport(lat,lon,brng,dist);
 		if(j==1)
 		{nodes[j]=nodeBuilding[i];
 		 nodes[j].pos={lat:offsetpoint.lat/rad, lon:offsetpoint.lon/rad};
@@ -74,15 +75,15 @@ a.nodeBuilding2Way(20, "building", "expanded from nodeBuilding");
 		}
 		else
 		{ 	 
-		nodes[j]=drawNode(offsetpoint.lat/rad,offsetpoint.lon/rad); 
+		    nodes[j]=drawNode(offsetpoint.lat/rad,offsetpoint.lon/rad); 
 		}
-	  }
-	 nodes[j+1]=nodes[0];
-  	 drawWays(nodes,tagName,layer);	 
+	    }
+	    nodes[j+1]=nodes[0];
+  	    drawWays(nodes,tagName,layer);	 
 	}
-	};
+    };
 
-	function transport(lat1,lon1,brng,d) {
+    function transport(lat1,lon1,brng,d) {
 	// Starting from lat1,lon2 go in bearing angle for distance dist
 	const R = 6371e3;
 	var lat = Math.asin( Math.sin(lat1)*Math.cos(d/R) +
@@ -92,7 +93,7 @@ a.nodeBuilding2Way(20, "building", "expanded from nodeBuilding");
 	return{lat:lat,lon:lon};
     };
 
-   function drawNode(lat, lon){
+    function drawNode(lat, lon){
 	// create a node at specified lat and lon
 	var node=nb.withPosition(lat, lon).create(); 
 	return node;
@@ -111,7 +112,7 @@ a.nodeBuilding2Way(20, "building", "expanded from nodeBuilding");
     }	
 }());
 
-  
-   
-    
-	
+
+
+
+
