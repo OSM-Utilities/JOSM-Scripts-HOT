@@ -1,16 +1,16 @@
-/*A
-  gyslerc
-  Bjoern Hassler, http://bjohas.de
+/*
+
+  addOLC.js
+
+  This script (intended for the JOSM scripting plugin) adds Open Location Codes 
+  to buildings on active layer in JOSM. The code can be easily adapted to add
+  Open Location Codes to other objects.
+
+  Note: From openlocationcode.js: "A 10 character code represents a 13.5x13.5 meter area 
+  (at the equator). An 11 character code represents approximately a 2.8x3.5 meter area."
+  So the code here uses 11 charcters by default.
 
   Run like this:
-
-  var a= require("JOSM-Scripts-HOT/examples/nodeBuilding2Way.js");
-  a.nodeBuilding2Way(distance on each side of node in metres, 
-  tagKey "building", 
-  tagValue "expanded from nodeBuilding", 
-  );
-
-  examples:
 
   // Long codes only
   var a= require("JOSM-Scripts-HOT/examples/addOLC.js");
@@ -26,6 +26,11 @@
   a.changeOLC();
   // Note that the short code is always updated if details for short code are provided.
 
+  Bjoern Hassler (http://bjohas.de)
+  gyslerc
+  https://github.com/OSM-Utilities/JOSM-Scripts-HOT
+  June 2017
+
 */
 
 (function() {
@@ -38,30 +43,30 @@
     var OpenLocationCode = require("JOSM-Scripts-HOT/lib/openlocationcode_1.js");
 
     exports.addOLC = function(locality) {
-	return exports.addOrChangeOLC(false, locality);
+	return exports.addOrChangeOLC("building",false, locality);
     };
 
     exports.changeOLC = function(locality) {
-	return exports.addOrChangeOLC(true, locality);
+	return exports.addOrChangeOLC("building",true, locality);
     };
     
-    exports.addOrChangeOLC = function(force,locality) {
+    exports.addOrChangeOLC = function(query, force,locality) {
 	console.clear();
 	var layer = layers.activeLayer;
-	var buildings =	layer.data.query("building");
-	var numB = buildings.length;
-	console.println("Number of buildings: " + numB);
+	var objects =	layer.data.query(query);
+	var numB = objects.length;
+	console.println("Number of objects for '"+query+"': " + numB);
 	var count = 0;
-	for(i=0; i< buildings.length; i++)
-	    count += addOLCtoBuilding(buildings[i], force, locality);
-	console.println("Done! Code added to " + count + " buildings.");
+	for(i=0; i< objects.length; i++)
+	    count += addOLCtoObject(objects[i], force, locality);
+	console.println("Done! Code added to " + count + " objects.");
     };
     
-    function addOLCtoBuilding(building, force, locality ) {
-	var coord = centroid(building);
-	var code = OpenLocationCode.encode(coord.lat, coord.lon);
+    function addOLCtoObject(object, force, locality ) {
+	var coord = centroid(object);
+	var code = OpenLocationCode.encode(coord.lat, coord.lon, 11);
 	//console.println("Code: "+code);
-	var tags = building.tags;
+	var tags = object.tags;
 	var count = 0;
 	if (tags["ref:olc"]) {
 	    if (tags["ref:olc"] === code) {
@@ -88,22 +93,23 @@
 	    // console.println("- Short code: "+scode);
 	};
 	// Does not work:
-	// building.tags = tags
+	// object.tags = tags
 	// Instead:
-	building.set(tags);
+	object.set(tags);
 	return count;
     };
     
-    function centroid(building) {
-	// TODO
+    function centroid(object) {
 	var lat = 0;
 	var lon = 0;
-	if (building.isNode) {
-	    lat = building.lat;
-	    lon = building.lon;
-	} else if (building.isWay) {
-	    lat = building.firstNode().lat;
-	    lon = building.firstNode().lon;
+	if (object.isNode) {
+	    lat = object.lat;
+	    lon = object.lon;
+	} else if (object.isWay) {
+	    // TODO: Should at least average over nodes
+	    // For large areas, really NE-SW should be used, with the codearea function in openlocationcode.js
+	    lat = object.firstNode().lat;
+	    lon = object.firstNode().lon;
 	} else {
 	    // Dont handle relations.
 	}
