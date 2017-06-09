@@ -1,4 +1,4 @@
-/*
+/*A
 
   nodeBuilding2Way.js
 
@@ -8,20 +8,26 @@
   Run like this:
 
   var a= require("JOSM-Scripts-HOT/examples/nodeBuilding2Way.js");
-  a.nodeBuilding2Way(distance the building side,
+  a.nodeBuilding2Way("user:date",distance the building side,
         tagKey "some key", 
         tagValue "some value", 
   );
 
+  "user:date" can be any string, but recommended is to use your OSM id + date, e.g. bjohas:201705609.
+  A string "nodeBldgExp:bjohas:201705609" will be added to the "source" tag, meaning you can then revisit 
+  the expanded buildings using a JOSM search.
+
+  tagkey/tagvalue is currently ignored. Idea is that it would add an extra tag.
+
   Example 1:
 
   var a= require("JOSM-Scripts-HOT/examples/nodeBuilding2Way.js");
-  a.nodeBuilding2Way();
+  a.nodeBuilding2Way("user:date");
 
   Example 2:
 
   var a= require("JOSM-Scripts-HOT/examples/nodeBuilding2Way.js");
-  a.nodeBuilding2Way(5, "some key", "some value");
+  a.nodeBuilding2Way("user:date", 5, "some key", "some value");
 
   Note: The script does not run fast - e.g. 100 buildings will take a few seconds.
 
@@ -41,7 +47,7 @@
     var geoutils = require("JOSM-Scripts-HOT/lib/geoutils.js");
     const rad = Math.PI/180;
     
-    exports.nodeBuilding2Way = function(distance_, key, value){
+    exports.nodeBuilding2Way = function(id, distance_, key, value){
 	var tagName={}
 	var distance = 4;
 	if (distance_)
@@ -53,8 +59,12 @@
 	var layer = current_layer(layers); 
 	var buildings = countNodeBuildings(layer); //Find subset of node buildings
 	console.println("Number of node-buildings to expand: " + buildings.numNodeBuildings);
-	expandNodeBuilding(layer,buildings.nodeBuildings,distance,tagName);
-	console.println("Done");
+	if (id) {
+	    expandNodeBuilding(layer,buildings.nodeBuildings,distance,id,tagName);
+	    console.println("Done");
+	} else {
+    	    console.println("Sorry, please provide some kind if identifier e.g. user:date.");
+	};
     };
     
     function countNodeBuildings(layer) {
@@ -76,7 +86,7 @@
 	};
     };	
 
-    function expandNodeBuilding(layer, nodeBuilding, d, tagName) {
+    function expandNodeBuilding(layer, nodeBuilding, d, id, tagName) {
 	// tagName currently not used. Could be merged into 'tags' in case the user wants to input additional tags
 	// d is the intended length of the building side. We're going to offset diagnonally by half a diagnoal: d*sqrt(2)/2.
 	var dist= d * Math.sqrt(2) / 2;
@@ -108,7 +118,7 @@
 	    } else {
 		tags.source = "";
 	    }
-	    tags.source += "nodeBldgExp";
+	    tags.source += "nodeBldgExp:"+id;
 	    //console.println("o="+tags);
   	    drawWays(nodes,tags,layer);
 	    nodes[0].tags = null;
