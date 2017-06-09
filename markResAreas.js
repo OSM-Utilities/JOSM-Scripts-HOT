@@ -25,7 +25,7 @@ a.markAreas(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
     var nb = require("josm/builder").NodeBuilder; 
     var wb = require("josm/builder").WayBuilder;
     var command = require("josm/command");	
-    var geoutils = require("JOSM-Scripts-HOT/geoutils.js");
+    var geoutils = require("JOSM-Scripts-HOT/lib/geoutils.js");
     const rad = Math.PI/180;
     
     exports.markAreas = function(distancem, minNumBldgInResArea,layerName,key,value,useFirstNodeOnly, bufferDistm) {
@@ -147,8 +147,8 @@ a.markAreas(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
     
     function dbAndGrahamScan(dataset,distance,minNumBldgInResArea,tagName,layer,bufferDistm) { 
 
-	const DBSCAN = require("JOSM-Scripts-HOT/DBSCAN.js");
-	const graham_scan = require("JOSM-Scripts-HOT/graham_scan.js");
+	const DBSCAN = require("JOSM-Scripts-HOT/lib/DBSCAN.js");
+	const graham_scan = require("JOSM-Scripts-HOT/lib/graham_scan.js");
 
 	dataset = flatten(dataset);
 	

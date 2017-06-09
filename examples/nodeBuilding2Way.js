@@ -24,7 +24,7 @@
     var nb = require("josm/builder").NodeBuilder; 
     var wb = require("josm/builder").WayBuilder;
     var command = require("josm/command");	
-    var geoutils = require("JOSM-Scripts-HOT/geoutils.js");
+    var geoutils = require("JOSM-Scripts-HOT/lib/geoutils.js");
     const rad = Math.PI/180;
     
     exports.nodeBuilding2Way = function(distance, key, value){
