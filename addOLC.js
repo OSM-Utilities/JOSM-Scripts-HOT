@@ -124,7 +124,7 @@
     };
 
     function codesAlongPath(object) {
-	// Check fr variaion along a path.
+	// Check for variation along a path.
 	var code = OpenLocationCode.encode(object.firstNode().lat, object.firstNode().lon);
 	var scode = "";
 	var nodesinBuilding = object.nodes; 
