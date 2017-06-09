@@ -159,7 +159,8 @@ June 2017
 	    {
 		idx=clusters[i][j];
 		latlon=dataset[idx];
-		convexHull[i].addPoint(latlon[0], latlon[1]);
+		// Longitude goes in as x; latitude goes in as y:
+		convexHull[i].addPoint(latlon[1], latlon[0]);
 	    }
 	    hullPoints= convexHull[i].getHull(); // returns an array of objects [Point{x:10, y:20}, Point{x:...}...]
 	    hullPoints = geoutils.unflatten(hullPoints);
@@ -168,14 +169,14 @@ June 2017
 	    var negbufferDistm = - bufferDistm;
 	    for(j=0; j<hullPoints.length; j++)  // extract coordinates of hull, offset coordinates
 	    {
-		var lat1=hullPoints[j].x;
-		var lon1=hullPoints[j].y;
+		var lat1=hullPoints[j].y;
+		var lon1=hullPoints[j].x;
 		x=(j+1)%hullPoints.length;
-		var lat2=hullPoints[x].x;
-		var lon2=hullPoints[x].y;
+		var lat2=hullPoints[x].y;
+		var lon2=hullPoints[x].x;
 		x=(j+2)%hullPoints.length;
-		var lat3=hullPoints[x].x;
-		var lon3=hullPoints[x].y;
+		var lat3=hullPoints[x].y;
+		var lon3=hullPoints[x].x;
 		var offsetpoint= geoutils.offset(lat1, lon1, lat2, lon2, lat3, lon3, negbufferDistm);
 		nodes[j] = drawNode(offsetpoint.lat,offsetpoint.lon);
 	    }
