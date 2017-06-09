@@ -10,7 +10,7 @@
   (at the equator). An 11 character code represents approximately a 2.8x3.5 meter area."
   The code here uses 10 charcters by default, but if your data is accurate enough, you could use 11.
 
-  The code alphabet is 23456789CFGHJMPQRVWX, whcih hels determining adjacen objects.
+  The code alphabet is 23456789CFGHJMPQRVWX, which helps determining adjacent objects.
   Typically here is a one digit change in the "+AB" part, i.e. A+/-1, B+/-1. (If that lies
   on a boundary, it can of course affect the part before the "+" as well.) I.e. most buildings
   we're looking at fit within four 13.5x13.5 areas (i.e. contained within a 27mx27m area).
