@@ -3,16 +3,17 @@ JOSM scripts for the JOSM scripting plugin (https://github.com/Gubaer/josm-scrip
 
 How to install: see http://bjohas.de/wiki/Maps/JOSM/scripting_plugin and then clone this repository into your JOSM/plugins/scripting/modules/ directory (or a custom directory, which you need to set up separately).
 
-The main script is:
-- markResAreas.js
+The main scripts are:
+- markResAreas.js 
+- addOLC.js
 
-Utilities:
+Third-party utilities (in lib/ folder):
 - DBSCAN.js
 - graham_scan.js
+- openlocationcode.js
 - geoutils.js
 
 Further examples are provided in the examples folder.
-
 
 Helpful links:
 - JOSM scripting plugin https://github.com/Gubaer/josm-scripting-plugin
