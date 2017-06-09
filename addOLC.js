@@ -79,13 +79,15 @@
 	    command.add(node).applyTo(layer)
 	}
 	const accuracy = 10;
+	// See where it falls:
+	var NS = coord.N - coord.S;
+	var EW = coord.E - coord.W;
+	var PAIR_RESOLUTIONS_ = [20.0, 1.0, .05, .0025, .000125];
+	// console.println("1  " + NS/.000125 + " " + EW/.000125);
+	// console.println("2  " + NS/.0025 + " " + EW/.0025);
+	//TODO: Set accuracy according to NS/EW
 	var code = OpenLocationCode.encode(coord.lat, coord.lon, accuracy);
 	// console.println("Code: "+code + " " + coord.lat + " " + coord.lon);
-	//TODO: For large areas, really NE-SW should be expanded, with the (reverse of the) codearea function in openlocationcode.js
-	//  NSEW = geoutils.NSEW(object or z);
-	// See where it falls:
-	//   var PAIR_RESOLUTIONS_ = [20.0, 1.0, .05, .0025, .000125];
-	// Then trim the code (or set to 0)
 	var tags = object.tags;
 	var count = 0;
 	if (tags["ref:olc"]) {
@@ -139,6 +141,7 @@
 		    z[i]={"lat": nodes[i].lat, "lon": nodes[i].lon};	    
 		};
 		var coord = geoutils.centroid(z);
+		var bounds = geoutils.bbox(z);
 		lat = coord.lat;
 		lon = coord.lon;
 	    } else {
@@ -149,7 +152,7 @@
 	} else {
 	    // Dont handle relations.
 	}
-	return {"lat": lat, "lon": lon};
+	return {"lat": lat, "lon": lon, "N":bounds.N, "S":bounds.S, "E":bounds.E, "W":bounds.W};
     };
 
     function codesAlongPath(object) {
