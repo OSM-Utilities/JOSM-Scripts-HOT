@@ -25,6 +25,7 @@
   var a= require("JOSM-Scripts-HOT/addOLC.js");
   a.addOLC({"lat":-13.9712444, "lon":29.605763, "place":"Fiwila, Zambia"});       
 
+  //TODO: Pass in accuracy.
 
   // Existing codes can be updated with 
   var a= require("JOSM-Scripts-HOT/addOLC.js");
@@ -80,6 +81,11 @@
 	const accuracy = 10;
 	var code = OpenLocationCode.encode(coord.lat, coord.lon, accuracy);
 	// console.println("Code: "+code + " " + coord.lat + " " + coord.lon);
+	//TODO: For large areas, really NE-SW should be expanded, with the (reverse of the) codearea function in openlocationcode.js
+	//  NSEW = geoutils.NSEW(object or z);
+	// See where it falls:
+	//   var PAIR_RESOLUTIONS_ = [20.0, 1.0, .05, .0025, .000125];
+	// Then trim the code (or set to 0)
 	var tags = object.tags;
 	var count = 0;
 	if (tags["ref:olc"]) {
@@ -138,7 +144,7 @@
 	    } else {
 		console.println("Error");
 	    }
-	    //TODO: For large areas, really NE-SW should be used, with the codearea function in openlocationcode.js
+	    // If you want to see how the code changes along the path of the building:
 	    // codesAlongPath(object);
 	} else {
 	    // Dont handle relations.
