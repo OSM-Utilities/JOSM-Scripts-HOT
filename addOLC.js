@@ -8,21 +8,26 @@
 
   Note: From openlocationcode.js: "A 10 character code represents a 13.5x13.5 meter area 
   (at the equator). An 11 character code represents approximately a 2.8x3.5 meter area."
-  So the code here uses 11 charcters by default.
+  The code here uses 10 charcters by default, but if your data is accurate enough, you could use 11.
+
+  The code alphabet is 23456789CFGHJMPQRVWX, whcih hels determining adjacen objects.
+  Typically here is a one digit change in the "+AB" part, i.e. A+/-1, B+/-1. (If that lies
+  on a boundary, it can of course affect the part before the "+" as well.) I.e. most buildings
+  we're looking at fit within four 13.5x13.5 areas (i.e. contained within a 27mx27m area).
 
   Run like this:
 
   // Long codes only
-  var a= require("JOSM-Scripts-HOT/examples/addOLC.js");
+  var a= require("JOSM-Scripts-HOT/addOLC.js");
   a.addOLC();
 
   // To get short codes also, you need to pass a place and it's coordinates:
-  var a= require("JOSM-Scripts-HOT/examples/addOLC.js");
+  var a= require("JOSM-Scripts-HOT/addOLC.js");
   a.addOLC({"lat":-13.9712444, "lon":29.605763, "place":"Fiwila, Zambia"});       
 
 
   // Existing codes can be updated with 
-  var a= require("JOSM-Scripts-HOT/examples/addOLC.js");
+  var a= require("JOSM-Scripts-HOT/addOLC.js");
   a.changeOLC();
   // Note that the short code is always updated if details for short code are provided.
 
@@ -64,8 +69,9 @@
     
     function addOLCtoObject(object, force, locality ) {
 	var coord = centroid(object);
-	var code = OpenLocationCode.encode(coord.lat, coord.lon, 11);
-	//console.println("Code: "+code);
+	const accuracy = 10;
+	var code = OpenLocationCode.encode(coord.lat, coord.lon, accuracy);
+	// console.println("Code: "+code + " " + coord.lat + " " + coord.lon);
 	var tags = object.tags;
 	var count = 0;
 	if (tags["ref:olc"]) {
@@ -98,7 +104,7 @@
 	object.set(tags);
 	return count;
     };
-    
+       
     function centroid(object) {
 	var lat = 0;
 	var lon = 0;
@@ -106,16 +112,29 @@
 	    lat = object.lat;
 	    lon = object.lon;
 	} else if (object.isWay) {
-	    // TODO: Should at least average over nodes
+	    // TODO: Should at least average over nodes, but better to obtain centroid.
 	    // For large areas, really NE-SW should be used, with the codearea function in openlocationcode.js
 	    lat = object.firstNode().lat;
 	    lon = object.firstNode().lon;
+	    // codesAlongPath(object);
 	} else {
 	    // Dont handle relations.
 	}
 	return {"lat": lat, "lon": lon};
     };
- 
+
+    function codesAlongPath(object) {
+	// Check fr variaion along a path.
+	var code = OpenLocationCode.encode(object.firstNode().lat, object.firstNode().lon);
+	var scode = "";
+	var nodesinBuilding = object.nodes; 
+	for(var i=0; i < nodesinBuilding.length-1; i++){
+            var code2 = OpenLocationCode.encode(nodesinBuilding[i].lat, nodesinBuilding[i].lon);	   
+	    scode = OpenLocationCode.shorten(code2, object.firstNode().lat, object.firstNode().lon);
+	    console.println("- "+i+ ", s=" + scode+ " " + ", l=" + code2 + ", wrt.=" + code); 
+	}
+    };
+    
 }());
 
 
