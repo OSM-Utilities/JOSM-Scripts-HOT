@@ -92,7 +92,7 @@
 	    {
 		//console.println("j="+tags);
 		var brng = Math.PI/4+j*Math.PI/2;
-     		var offsetpoint = transport(lat,lon, brng, dist);
+     		var offsetpoint = geoutils.transport(lat,lon, brng, dist);
 		if(j==0){
 		    nodes[j] = nodeBuilding[i];
 		    nodes[j].pos = {lat:offsetpoint.lat/rad, lon:offsetpoint.lon/rad};
@@ -113,16 +113,6 @@
   	    drawWays(nodes,tags,layer);
 	    nodes[0].tags = null;
 	}
-    };
-
-    function transport(lat1,lon1,brng,d) {
-	// Starting from lat1,lon2 go in bearing angle for distance dist
-	const R = 6371e3;
-	var lat = Math.asin( Math.sin(lat1)*Math.cos(d/R) +
-			     Math.cos(lat1)*Math.sin(d/R)*Math.cos(brng) );
-	var lon = lon1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(lat1),
-				    Math.cos(d/R)-Math.sin(lat1)*Math.sin(lat));
-	return{lat:lat,lon:lon};
     };
 
     function drawNode(lat, lon){
