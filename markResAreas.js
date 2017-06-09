@@ -1,21 +1,29 @@
 /*
-gyslerc
-Bjoern Hassler, http://bjohas.de
+markResAreas.js 
+
+This script (intended for the JOSM scripting plugin) clusters buildings
+in active layer in JOSM, and adds residential areas to new layer.
 
 Run like this:
+
 var a= require("JOSM-Scripts-HOT/markResAreas.js");
 a.showStats(distance between buildings in metres, 
             min number of buildings in a residential area, 
             layerName, 
             tagKey "landuse", 
-            tagValue"residential", 
+            tagValue "residential", 
             Use only first node for clustering "true"/ "false", 
             Buffer distance in meters);
 
 example:
 
-var a= require("JOSM-Scripts-HOT/markResAreas.js");
-a.markAreas(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
+    var a= require("JOSM-Scripts-HOT/markResAreas.js");
+    a.markAreas(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
+
+
+gyslerc, Bjoern Hassler (http://bjohas.de)
+https://github.com/OSM-Utilities/JOSM-Scripts-HOT
+June 2017
 
 */
 (function() {
