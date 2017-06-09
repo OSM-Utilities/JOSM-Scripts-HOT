@@ -96,7 +96,7 @@
 		if(j==0){
 		    nodes[j] = nodeBuilding[i];
 		    nodes[j].pos = {lat:offsetpoint.lat/rad, lon:offsetpoint.lon/rad};
-		    // Does not work: If nodes[j].tags is set to null, tags also becomes null.
+		    // Does not work: If nodes[j].tags is set to null, tags also becomes null. pass-by-ref?
 		    //nodes[j].tags = null;
 		} else { 	 
 		    nodes[j]=drawNode(offsetpoint.lat/rad,offsetpoint.lon/rad); 

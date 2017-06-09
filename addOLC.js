@@ -92,7 +92,7 @@
 	    tags["ref:olc_short"] = scode;
 	    // console.println("- Short code: "+scode);
 	};
-	// Does not work:
+	// Does not work... pass-by-ref?
 	// object.tags = tags
 	// Instead:
 	object.set(tags);
