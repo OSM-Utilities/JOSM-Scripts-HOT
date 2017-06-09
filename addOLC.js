@@ -46,7 +46,8 @@
     var wb = require("josm/builder").WayBuilder;
     var command = require("josm/command");	
     var OpenLocationCode = require("JOSM-Scripts-HOT/lib/openlocationcode_1.js");
-
+    var geoutils = require("JOSM-Scripts-HOT/lib/geoutils.js");
+    
     exports.addOLC = function(locality) {
 	return exports.addOrChangeOLC("building",false, locality);
     };
@@ -69,6 +70,13 @@
     
     function addOLCtoObject(object, force, locality ) {
 	var coord = centroid(object);
+	// as a test:
+	const markCentroid = false;
+	if (markCentroid) {
+	    var layer = layers.activeLayer;
+            var node=nb.withPosition(coord.lat, coord.lon).withTags({}).create();
+	    command.add(node).applyTo(layer)
+	}
 	const accuracy = 10;
 	var code = OpenLocationCode.encode(coord.lat, coord.lon, accuracy);
 	// console.println("Code: "+code + " " + coord.lat + " " + coord.lon);
@@ -112,10 +120,25 @@
 	    lat = object.lat;
 	    lon = object.lon;
 	} else if (object.isWay) {
-	    // TODO: Should at least average over nodes, but better to obtain centroid.
-	    // For large areas, really NE-SW should be used, with the codearea function in openlocationcode.js
 	    lat = object.firstNode().lat;
 	    lon = object.firstNode().lon;
+	    //Obtain centroid.
+	    var nodes = object.nodes;
+	    // var coord = geoutils.centroid(nodesinBuilding);
+	    // console.println("Nodes: " + nodesinBuilding);
+	    if (nodes) {
+		var z=[];	
+		for(var i=0; i < nodes.length; i++) {
+		    // console.println("s "+i+": " +nodes[i].lat+ ", " + nodes[i].lon);
+		    z[i]={"lat": nodes[i].lat, "lon": nodes[i].lon};	    
+		};
+		var coord = geoutils.centroid(z);
+		lat = coord.lat;
+		lon = coord.lon;
+	    } else {
+		console.println("Error");
+	    }
+	    //TODO: For large areas, really NE-SW should be used, with the codearea function in openlocationcode.js
 	    // codesAlongPath(object);
 	} else {
 	    // Dont handle relations.
