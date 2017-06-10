@@ -15,10 +15,15 @@ a.showStats(distance between buildings in metres,
             Use only first node for clustering "true"/ "false", 
             Buffer distance in meters);
 
-example:
+example 1:
 
     var a= require("JOSM-Scripts-HOT/markResAreas.js");
-    a.markAreas(300, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
+    a.markAreas();
+
+example 2:
+
+    var a= require("JOSM-Scripts-HOT/markResAreas.js");
+    a.markAreas(300, 3, 20, "ResAreaLayer", "landuse", "residential", "false");
 
 
 gyslerc, Bjoern Hassler (http://bjohas.de)
@@ -38,7 +43,7 @@ June 2017
 
     exports.markAreas = function(distancem, minNumBldgInResArea, bufferDistm, layerName, key, value, useFirstNodeOnly) {
 	if (!distancem)
-	    distancem = 250;
+	    distancem = 150;
 	if (!minNumBldgInResArea)
 	    minNumBldgInResArea = 3;	
 	if (minNumBldgInResArea<3) { minNumBldgInResArea=3; }
