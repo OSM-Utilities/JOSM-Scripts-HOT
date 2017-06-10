@@ -68,7 +68,7 @@
 	    count += addOLCtoObject(objects[i], force, locality);
 	console.println("Done! Code added to " + count + " objects.");
     };
-    
+
     function addOLCtoObject(object, force, locality ) {
 	var coord = centroid(object);
 	// as a test:
@@ -82,10 +82,9 @@
 	// See where it falls:
 	var NS = coord.N - coord.S;
 	var EW = coord.E - coord.W;
-	var PAIR_RESOLUTIONS_ = [20.0, 1.0, .05, .0025, .000125];
-	// console.println("1  " + NS/.000125 + " " + EW/.000125);
-	// console.println("2  " + NS/.0025 + " " + EW/.0025);
-	//TODO: Set accuracy according to NS/EW
+	var sigDigLat = geoutils.significantDigitsOLC(NS);
+	var sigDigLon = geoutils.significantDigitsOLC(EW);
+	console.println("SD=  " + sigDigLat + " " + sigDigLon);
 	var code = OpenLocationCode.encode(coord.lat, coord.lon, accuracy);
 	// console.println("Code: "+code + " " + coord.lat + " " + coord.lon);
 	var tags = object.tags;
