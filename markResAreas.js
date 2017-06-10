@@ -38,9 +38,10 @@ June 2017
 
     exports.markAreas = function(distancem, minNumBldgInResArea, bufferDistm, layerName, key, value, useFirstNodeOnly) {
 	if (!distancem)
-	    distancem = 300;
+	    distancem = 250;
 	if (!minNumBldgInResArea)
 	    minNumBldgInResArea = 3;	
+	if (minNumBldgInResArea<3) { minNumBldgInResArea=3; }
 	if (!layerName)
 	    layerName = "ResAreaLayer";
 	if (!key)
@@ -53,10 +54,10 @@ June 2017
 	    useFirstNodeOnly = "false";
 	if (!bufferDistm)
 	    bufferDistm = 20;
-	exports.markAreasWithArgs(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly);
+	exports.markAreasRaw(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly);
     };
     
-    exports.markAreasWithArgs = function(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly) {
+    exports.markAreasRaws = function(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly) {
 	// var tags={}
 	// tags[key]=value;	
 	console.clear();
@@ -76,7 +77,7 @@ June 2017
 	console.println("Number of nodes used in clustering: " + buildings.numAllNodes);
 	var layerNew = addLayer(layerName);
 	//TODO: We should allow anything here - just need to deal with the degenerate cases below.
-	if (minNumBldgInResArea<3) { minNumBldgInResArea=3; }
+	// Moved up: // if (minNumBldgInResArea<3) { minNumBldgInResArea=3; }
 	var cluster = dbAndGrahamScan(buildings.allNodes,distance,minNumBldgInResArea,tags,layerNew,bufferDistm);
 	var areasNew = countObjects(layerNew,"true"); 
 	console.println("Number of residential areas in new layer: " + areasNew.numAreas );	
