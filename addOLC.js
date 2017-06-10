@@ -15,6 +15,10 @@
   on a boundary, it can of course affect the part before the "+" as well.) I.e. most buildings
   we're looking at fit within four 13.5x13.5 areas (i.e. contained within a 27mx27m area).
 
+  Warnings are produced if buildings are smaller than warranted by the
+  current precision (set in accuracy), or if the buildings are large
+  (previcision < 7).
+
   Run like this:
 
   // Long codes only
