@@ -83,8 +83,13 @@
 	var NS = coord.N - coord.S;
 	var EW = coord.E - coord.W;
 	var sigDigLat = geoutils.significantDigitsOLC(NS);
-	var sigDigLon = geoutils.significantDigitsOLC(EW);
-	console.println("SD=  " + sigDigLat + " " + sigDigLon);
+	var sigDigLon = geoutils.significantDigitsOLC(EW);	
+	if (sigDigLat>accuracy || sigDigLon>accuracy) {
+	    console.println("Encountered small objects: " + sigDigLat + " | " + sigDigLon+" > "+acuracy);
+	}
+	if (sigDigLat<8 || sigDigLon<8) {
+	    console.println("Encountered large objects: " + sigDigLat + ", " + sigDigLon);
+	}
 	var code = OpenLocationCode.encode(coord.lat, coord.lon, accuracy);
 	// console.println("Code: "+code + " " + coord.lat + " " + coord.lon);
 	var tags = object.tags;
