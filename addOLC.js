@@ -69,6 +69,18 @@
 	console.println("Done! Code added to " + count + " objects.");
     };
 
+    function append(object,key,value) {
+	var out = "";
+	if (object[key]) {
+	    object[key] += ";"+value;
+	    out += object[key]+";"+value;
+	} else {
+	    object[key] = value;
+	    out = value;
+	}
+	return out;
+    };
+    
     function addOLCtoObject(object, force, locality ) {
 	var coord = centroid(object);
 	// as a test:
@@ -84,15 +96,18 @@
 	var EW = coord.E - coord.W;
 	var sigDigLat = geoutils.significantDigitsOLC(NS);
 	var sigDigLon = geoutils.significantDigitsOLC(EW);	
+	var note = "";
+	var tags = object.tags;
 	if (sigDigLat>accuracy || sigDigLon>accuracy) {
 	    console.println("Encountered small objects: " + sigDigLat + " | " + sigDigLon+" > "+accuracy);
+	    tags["note:olc"] = append(tags,"note:olc","Small object: " + sigDigLat + " | " + sigDigLon+" > "+accuracy);
 	}
-	if (sigDigLat<8 || sigDigLon<8) {
+	if (sigDigLat<7 || sigDigLon<7) {
 	    console.println("Encountered large objects: " + sigDigLat + ", " + sigDigLon);
+	    tags["note:olc"] = append(tags,"note:olc","Large object: " + sigDigLat + ", " + sigDigLon);
 	}
 	var code = OpenLocationCode.encode(coord.lat, coord.lon, accuracy);
 	// console.println("Code: "+code + " " + coord.lat + " " + coord.lon);
-	var tags = object.tags;
 	var count = 0;
 	if (tags["ref:olc"]) {
 	    if (tags["ref:olc"] === code) {
@@ -115,7 +130,7 @@
 	    // Always change short code
 	    scode = OpenLocationCode.shorten(code, locality.lat, locality.lon);
 	    var scode = scode + ", " + locality.place;
-	    tags["ref:olc_short"] = scode;
+	    tags["ref:olc:short"] = scode;
 	    // console.println("- Short code: "+scode);
 	};
 	// Does not work... pass-by-ref?
