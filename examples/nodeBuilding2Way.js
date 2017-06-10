@@ -70,7 +70,7 @@
 	} else {
     	    console.println("Sorry, please provide some kind if identifier e.g. user:date.");
 	};
-		// timing
+	// timing
 	var date2 = new Date();
 	var diff = date2-date;
 	console.println("End: "+date2);
