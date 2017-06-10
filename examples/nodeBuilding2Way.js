@@ -1,9 +1,9 @@
-/*A
+/*
 
   nodeBuilding2Way.js
 
-  This script (intended for the JOSM scripting plugin) expands node-buildings
-  into way-buildings.
+  This script (intended for the JOSM scripting plugin) expands
+  node-buildings into way-buildings. 
 
   Run like this:
 
