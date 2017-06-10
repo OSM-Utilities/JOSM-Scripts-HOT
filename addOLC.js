@@ -62,7 +62,9 @@
     };
     
     exports.addOrChangeOLC = function(query, force,locality) {
-	console.clear();
+	// console.clear();
+	var date = new Date();
+	console.println("Start: "+date);
 	var layer = layers.activeLayer;
 	var objects =	layer.data.query(query);
 	var numB = objects.length;
@@ -71,6 +73,13 @@
 	for(i=0; i< objects.length; i++)
 	    count += addOLCtoObject(objects[i], force, locality);
 	console.println("Done! Code added to " + count + " objects.");
+	// timing
+	var date2 = new Date();
+	var diff = date2-date;
+	console.println("End: "+date2);
+	var perobj = diff / numB;
+	diff = Math.round(diff/1000);
+	console.println("time="+diff+" s, "+perobj+"ms per object");
     };
 
     function append(object,key,value) {
@@ -102,7 +111,7 @@
 	var sigDigLon = geoutils.significantDigitsOLC(EW);	
 	var note = "";
 	var tags = object.tags;
-	if (sigDigLat>accuracy || sigDigLon>accuracy) {
+	if (sigDigLat>accuracy+1 || sigDigLon>accuracy+1) {
 	    console.println("Encountered small objects: " + sigDigLat + " | " + sigDigLon+" > "+accuracy);
 	    tags["note:olc"] = append(tags,"note:olc","Small object: " + sigDigLat + " | " + sigDigLon+" > "+accuracy);
 	}

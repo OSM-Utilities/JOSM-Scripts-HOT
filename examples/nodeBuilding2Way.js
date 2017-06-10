@@ -29,7 +29,10 @@
   var a= require("JOSM-Scripts-HOT/examples/nodeBuilding2Way.js");
   a.nodeBuilding2Way("user:date", 5, "some key", "some value");
 
-  Note: The script does not run fast - e.g. 100 buildings will take a few seconds.
+  Note: The script does not run fast - assume that 10 buildings will
+  take one to a few seconds! So with larger numbers of buildings, this
+  script will run for a few minutes, without user feedback: We haven't
+  worked out how to do progress indicators yet!
 
   https://github.com/OSM-Utilities/JOSM-Scripts-HOT
   gyslerc, Bjoern Hassler (http://bjohas.de)
@@ -46,8 +49,11 @@
     var command = require("josm/command");	
     var geoutils = require("JOSM-Scripts-HOT/lib/geoutils.js");
     const rad = Math.PI/180;
-    
+           
     exports.nodeBuilding2Way = function(id, distance_, key, value){
+	// console.clear();
+	var date = new Date();
+	console.println("Start: "+date);
 	var tagName={}
 	var distance = 4;
 	if (distance_)
@@ -55,7 +61,6 @@
 	if (key)
 	    if (value)
 		tagName[key]=value; 
-	console.clear();
 	var layer = current_layer(layers); 
 	var buildings = countNodeBuildings(layer); //Find subset of node buildings
 	console.println("Number of node-buildings to expand: " + buildings.numNodeBuildings);
@@ -65,6 +70,13 @@
 	} else {
     	    console.println("Sorry, please provide some kind if identifier e.g. user:date.");
 	};
+		// timing
+	var date2 = new Date();
+	var diff = date2-date;
+	console.println("End: "+date2);
+	var perobj = Math.round(diff / buildings.numNodeBuildings * 10)/10;
+	diff = Math.round(diff/1000);
+	console.println("time="+diff+" s, "+perobj+"ms per object");
     };
     
     function countNodeBuildings(layer) {
