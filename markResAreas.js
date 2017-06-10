@@ -18,7 +18,7 @@ a.showStats(distance between buildings in metres,
 example:
 
     var a= require("JOSM-Scripts-HOT/markResAreas.js");
-    a.markAreas(100, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
+    a.markAreas(300, 3, "ResAreaLayer", "landuse", "residential", "false", 20);
 
 
 gyslerc, Bjoern Hassler (http://bjohas.de)
@@ -35,11 +35,32 @@ June 2017
     var command = require("josm/command");	
     var geoutils = require("JOSM-Scripts-HOT/lib/geoutils.js");
     const rad = Math.PI/180;
+
+    exports.markAreas = function(distancem, minNumBldgInResArea, bufferDistm, layerName, key, value, useFirstNodeOnly) {
+	if (!distancem)
+	    distancem = 300;
+	if (!minNumBldgInResArea)
+	    minNumBldgInResArea = 3;	
+	if (!layerName)
+	    layerName = "ResAreaLayer";
+	if (!key)
+	    key = "landuse";
+	if (!value)
+	    value = "residential";
+	var tags = {key: value};
+	if (!useFirstNodeOnly)
+	    useFirstNodeOnly = "false";
+	if (!bufferDistm)
+	    bufferDistm = 20;
+	exports.markAreasWithArgs(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly);
+    };
     
-    exports.markAreas = function(distancem, minNumBldgInResArea,layerName,key,value,useFirstNodeOnly, bufferDistm) {
-	var tagName={}
-	tagName[key]=value;	
+    exports.markAreasWithArgs = function(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly) {
+	// var tags={}
+	// tags[key]=value;	
 	console.clear();
+	var date = new Date();
+	console.println("Start: "+date);
 	console.println("Hello, calculating..");	
 	var distance = distancem / 6371e3 / rad;
 	console.println("distance = "+distancem+" = "+distance + " deg lat");	
@@ -55,9 +76,19 @@ June 2017
 	var layerNew = addLayer(layerName);
 	//TODO: We should allow anything here - just need to deal with the degenerate cases below.
 	if (minNumBldgInResArea<3) { minNumBldgInResArea=3; }
-	var cluster = dbAndGrahamScan(buildings.allNodes,distance,minNumBldgInResArea,tagName,layerNew,bufferDistm);
+	var cluster = dbAndGrahamScan(buildings.allNodes,distance,minNumBldgInResArea,tags,layerNew,bufferDistm);
 	var areasNew = countObjects(layerNew,"true"); 
 	console.println("Number of residential areas in new layer: " + areasNew.numAreas );	
+	var date2 = new Date();
+	var diff = date2-date;
+	console.println("End: "+date2);
+	var perobj = "-";
+	var nObjects = buildings.numBuildings + buildings.numNodeBuildings;;
+	if (nObjects > 0) {
+	    perobj = Math.round(diff / nObjects * 10)/10;
+	};
+	diff = Math.round(diff/1000);
+	console.println("time="+diff+" s, "+perobj+" ms per object");
 	console.println("Done!");
     };
 
