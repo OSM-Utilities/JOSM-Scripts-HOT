@@ -77,9 +77,11 @@
 	var date2 = new Date();
 	var diff = date2-date;
 	console.println("End: "+date2);
-	var perobj = diff / numB;
+	var perobj = "-";
+	if (numB> 0)
+	    perobj = Math.round(diff / numB * 10)/10;
 	diff = Math.round(diff/1000);
-	console.println("time="+diff+" s, "+perobj+"ms per object");
+	console.println("time="+diff+" s, "+perobj+" ms per object");
     };
 
     function append(object,key,value) {
