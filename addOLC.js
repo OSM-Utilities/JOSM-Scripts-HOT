@@ -85,7 +85,7 @@
 	var sigDigLat = geoutils.significantDigitsOLC(NS);
 	var sigDigLon = geoutils.significantDigitsOLC(EW);	
 	if (sigDigLat>accuracy || sigDigLon>accuracy) {
-	    console.println("Encountered small objects: " + sigDigLat + " | " + sigDigLon+" > "+acuracy);
+	    console.println("Encountered small objects: " + sigDigLat + " | " + sigDigLon+" > "+accuracy);
 	}
 	if (sigDigLat<8 || sigDigLon<8) {
 	    console.println("Encountered large objects: " + sigDigLat + ", " + sigDigLon);
