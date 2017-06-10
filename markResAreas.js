@@ -47,7 +47,8 @@ June 2017
 	    key = "landuse";
 	if (!value)
 	    value = "residential";
-	var tags = {key: value};
+	var tags = {};
+	tags[key]=value;
 	if (!useFirstNodeOnly)
 	    useFirstNodeOnly = "false";
 	if (!bufferDistm)
