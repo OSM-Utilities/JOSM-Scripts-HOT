@@ -6,6 +6,7 @@ How to install: see http://bjohas.de/wiki/Maps/JOSM/scripting_plugin and then cl
 The main scripts are:
 - markResAreas.js 
 - addOLC.js
+- nodeBuilding2Way.js
 
 Third-party utilities (in lib/ folder):
 - DBSCAN.js
@@ -13,7 +14,7 @@ Third-party utilities (in lib/ folder):
 - openlocationcode.js
 - geoutils.js
 
-Further examples are provided in the examples folder.
+Some examples of javascript code for the scripting plugin can be found in the examples/ folder.
 
 Helpful links:
 - JOSM scripting plugin https://github.com/Gubaer/josm-scripting-plugin
