@@ -130,6 +130,7 @@ June 2017
 		      The offset agorithm will still work, but because the objects don't 'span a plane', they will end up on the boundary of the area.
 		      The offset algorithm notices these straight segments, and a possible solution is to add both points (lef/right of the segment) and then run the hull algrithm again on those points.
 		     */
+// Could consider input buffering, which would double the number of nodes.
 	            if(useFirstNodeOnly=="true") {
 			allNodes[numAllNodes]=[result[j].firstNode().lat,  result[j].firstNode().lon];
 			numAllNodes++;
