@@ -101,10 +101,29 @@
 	};
     };	
 
+    function getNodes(oldNode,lat,lon,dist,n,ang,distort) {
+	var nodes=[];
+	for(var j=0; j<n; j++)
+	{
+	    //console.println("j="+tags);
+	    var brng = (j*2) * Math.PI/n + ang/180*Math.PI;
+     	    var offsetpoint = geoutils.transport(lat,lon, brng, dist);
+	    if(j==0){
+		nodes[j] = oldNode;
+		nodes[j].pos = {lat:offsetpoint.lat/rad, lon:offsetpoint.lon/rad};
+		// Does not work: If nodes[j].tags is set to null, tags also becomes null. pass-by-ref?
+		//nodes[j].tags = null;
+	    } else { 	 
+		nodes[j]=drawNode(offsetpoint.lat/rad,offsetpoint.lon/rad); 
+	    }
+	}
+	return nodes;
+    };
+
+    
     function expandNodeBuilding(layer, nodeBuilding, d, id, tagName) {
 	// tagName currently not used. Could be merged into 'tags' in case the user wants to input additional tags
 	// d is the intended length of the building side. We're going to offset diagnonally by half a diagnoal: d*sqrt(2)/2.
-	var dist= d * Math.sqrt(2) / 2;
 	// var tagDone={};
 	for(var i=0; i<nodeBuilding.length; i++)
 	{
@@ -113,20 +132,8 @@
 	    var nodes=[];
 	    var lat=nodeBuilding[i].lat*rad;
 	    var lon=nodeBuilding[i].lon*rad;
-	    for(var j=0; j<4; j++)
-	    {
-		//console.println("j="+tags);
-		var brng = Math.PI/4+j*Math.PI/2;
-     		var offsetpoint = geoutils.transport(lat,lon, brng, dist);
-		if(j==0){
-		    nodes[j] = nodeBuilding[i];
-		    nodes[j].pos = {lat:offsetpoint.lat/rad, lon:offsetpoint.lon/rad};
-		    // Does not work: If nodes[j].tags is set to null, tags also becomes null. pass-by-ref?
-		    //nodes[j].tags = null;
-		} else { 	 
-		    nodes[j]=drawNode(offsetpoint.lat/rad,offsetpoint.lon/rad); 
-		}
-	    }
+	    var dist= d * Math.sqrt(2) / 2;
+	    nodes = getNodes(nodeBuilding[i],lat,lon,dist,4,0,0);
 	    nodes[j+1]=nodes[0];
 	    if (tags.source) {
 		tags.source += ";";
