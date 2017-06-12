@@ -68,9 +68,7 @@
 	autoScaleAction.zoomToSelection();
     };
 
-    function expand(type) {
-
-// The advanced setting of edit.zoom-enlarge-bbox effects this. Usual setting 0.002. Recmmend 0.0001 for small buildings.
+    // The advanced setting of edit.zoom-enlarge-bbox effects this. Usual setting 0.002. Recmmend 0.0001 for small buildings.
 /*
 Doesn't work:
 org.openstreetmap.josm.actions.ZoomInAction();
@@ -78,30 +76,39 @@ org.openstreetmap.josm.gui.dialogs.SelectionListDialog.zoomToSelectedElement();
 org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.visit(pos);
 org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0);
 */
+
+    function expand(type) {
 	var nodes = nbs.nodes;
 	//console.println("id="+nodes[0].id);
 	// expandNodeBuilding(layer,nodes[0],distance,id,tagName);
 	// expandNodeBuildingToCircle(layer,nbs.nodes[0],4);
-	var way;
+	var way = '';
 	var node;
 	for (var i=0 ; i<nodes.length; i++) {
 	    node = nodes[i];
-	    switch(type) {
-	    case "circle":  way = expandNodeBuildingToCircle(layer,node,defaultsidelength); break;
-	    case "square":  way = expandNodeBuildingToSquare(layer,node,defaultsidelength); break;
-	    case "rectangle": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength*1.5, 0, defaultsidelength); break; 
-	    default:  way = expandNodeBuildingToSquare(layer,node,defaultsidelength); break;
+	    //TODO: Only process nodes
+	    if (node.tags) {
+		if (node.tags.building) {
+		    switch(type) {
+		    case "circle":  way = expandNodeBuildingToCircle(layer,node,defaultsidelength); break;
+		    case "square":  way = expandNodeBuildingToSquare(layer,node,defaultsidelength); break;
+		    case "rectangle": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength*1.5, 0, defaultsidelength); break; 
+		    default:  way = expandNodeBuildingToSquare(layer,node,defaultsidelength); break;
+		    };
+		};
 	    };
 	};
-	// Now select the way...
 	nbs.clearAll();
-	nbs.add(way);
+	if (way !== '') {
+	    // Now select the (last) way, so it can be transformed manually
+	    nbs.add(way);
+	};
     };
 
     function addMenuItems() {
 	addMenuItem("next","Go to next node building in download.", next );
-	addMenuItem("circle","Turn node into round building",(function(){	expand("circle"); }) );
-	addMenuItem("square","Turn node into round building",(function(){	expand("square"); }) );
+	addMenuItem("circle","Turn node into round building",(function(){ expand("circle"); }) );
+	addMenuItem("square","Turn node into round building",(function(){ expand("square"); }) );
 	addMenuItem("rect","Turn node into round building",(function(){	expand("rectangle"); }) );
     };
     
@@ -171,18 +178,23 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 	var lon=nodeBuilding.lon*rad;
 	nodes = getNodes(nodeBuilding,lat,lon,length,corners,angle,distort);
 	nodes[nodes.length]=nodes[0];
-	if (tags.source) {
-	    tags.source += ";";
-	} else {
-	    tags.source = "";
-	}
-	tags.source += "nodeBldgExp:"+text;
+	if (text)  {
+	    if (text !== '') {	   
+		if (tags.source) {
+		    tags.source += ";";
+		} else {
+		    tags.source = "";
+		}
+		tags.source += "nodeBldgExp:"+text;
+	    };
+	};
 	//console.println("o="+tags);
   	var way = drawWays(nodes,tags,layer);
 	nodes[0].tags = null;
 	return way;
     };
 
+    // Does work yet - dims and orientation not correct.
     function expandNodeBuildingToRectangle(layer, nodeBuilding, side_length_long, orientation, side_length_short) {
 	if (!side_length_long)
 	    side_length_long = defaultsidelength;
