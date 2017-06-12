@@ -1,6 +1,7 @@
 /*
 
   addMenuItem.js
+  from: http://gubaer.github.io/josm-scripting-plugin/doc/menu.html
 
   https://github.com/OSM-Utilities/JOSM-Scripts-HOT
   gyslerc, Bjoern Hassler (http://bjohas.de)
@@ -19,9 +20,11 @@ var action = new JSAction({
     tooltip: "This is my action",
     onInitEnabled: function() { this.enabled = true;  }
 });
+// add it to the edit menu
 action.addToMenu(josm.menu.get("edit"));
-//action.addToToolbar({at: "end"});
-console.println("Action added. You can use the preferences to assign a keyboard shortcut.");
+// add it to the toolbar (append it at the end of the toolbar)
+action.addToToolbar({at: "end"});
+console.println("Action added to menu and toolbar. You can use the preferences to assign a keyboard shortcut.");
 
 action.onExecute = function() {
     josm.alert("Action is executing ...");
