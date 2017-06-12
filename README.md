@@ -20,3 +20,6 @@ Helpful links:
 - JOSM scripting plugin https://github.com/Gubaer/josm-scripting-plugin
 - Documentation: http://gubaer.github.io/josm-scripting-plugin/
 - API for Javascript: http://gubaer.github.io/josm-scripting-plugin/apidoc/namespaces/josm.html
+
+Other JOSM scripting examples:
+- https://github.com/bagage/cadastre-conflation
