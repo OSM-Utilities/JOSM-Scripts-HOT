@@ -62,7 +62,7 @@ June 2017
 	exports.markAreasRaw(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly);
     };
     
-    exports.markAreasRaws = function(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly) {
+    exports.markAreasRaw = function(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly) {
 	// var tags={}
 	// tags[key]=value;	
 	console.clear();
