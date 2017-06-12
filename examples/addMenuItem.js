@@ -22,9 +22,11 @@ var action = new JSAction({
 });
 // add it to the edit menu
 action.addToMenu(josm.menu.get("edit"));
+// This does not work:
 // add it to the toolbar (append it at the end of the toolbar)
-action.addToToolbar({at: "end"});
-console.println("Action added to menu and toolbar. You can use the preferences to assign a keyboard shortcut.");
+// action.addToToolbar({at: "end"});
+// console.println("Action added to menu and toolbar. You can use the preferences to assign a keyboard shortcut.");
+console.println("Action added to menu. You can use the preferences to assign a keyboard shortcut or create a toolbar item.");
 
 action.onExecute = function() {
     josm.alert("Action is executing ...");
