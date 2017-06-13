@@ -113,12 +113,13 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
     function addMenuItems() {
 	addMenuItem("next","Go to next node building in download.", exports.next );
 	addMenuItem("circle","Turn node into round building",(function(){ exports.expand("circle"); }) );
-	addMenuItem("square","Turn node into round building",(function(){ exports.expand("square"); }) );
-	addMenuItem("diamond","Turn node into round building",(function(){ exports.expand("diamond"); }) );
-	addMenuItem("rect_up","Turn node into round building",(function(){ exports.expand("rectangle_up"); }) );
 	addMenuItem("rect_side","Turn node into round building",(function(){ exports.expand("rectangle_side"); }) );
 	addMenuItem("rect-45","Turn node into round building",(function(){ exports.expand("rectangle_-45"); }) );
+	addMenuItem("rect_up","Turn node into round building",(function(){ exports.expand("rectangle_up"); }) );
 	addMenuItem("rect+45","Turn node into round building",(function(){ exports.expand("rectangle_45"); }) );
+	addMenuItem("square","Turn node into round building",(function(){ exports.expand("square"); }) );
+	addMenuItem("diamond","Turn node into round building",(function(){ exports.expand("diamond"); }) );
+
     };
     
     function addMenuItem(name,tooltip,fn) {
@@ -217,7 +218,9 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 	var tags = annotate(nodeBuilding,text);
 	//console.println("o="+tags);
   	var way = drawWays(nodes,tags,layer);
-	nodes[0].tags = null;
+	if (nodes[0])
+	    if (nodes[0].tags) 
+		nodes[0].tags = null;
 	return way;
     };
 
@@ -248,7 +251,7 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 	    side_length = defaultsidelength;
 	var radius = side_length * Math.sqrt(2) / 2;
 	//console.println("Square: "+radius+ " " + orientation);
-	return expandNodeBuilding(layer, nodeBuilding, radius, 4, orientation, 0);
+	return expandNodeBuilding(layer, nodeBuilding, text, radius, 4, orientation, 0);
     };
 
     function expandNodeBuildingToCircle(layer, nodeBuilding, diameter, orientation, text) {
