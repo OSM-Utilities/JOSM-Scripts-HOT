@@ -43,6 +43,10 @@
 	} else {
 	    console.println("Menu already added.");
 	};
+	exports.getNodeBuildings();	
+    };
+
+    exports.getNodeBuildings = function() {
 	layer = current_layer(layers); 
 	dataset = layer.data;
 	counter=0;
@@ -51,7 +55,7 @@
 	console.println("Number of node-buildings to expand: " + nodeBuildings.length);
 	nbs = dataset.selection; // new DataSetSelectionFacade(ds);
 	nbs.clearAll();
-//	exports.next();
+	exports.next();
 //	exports.expand("rectangle_up"); 
     };
 
@@ -61,11 +65,22 @@
     
     exports.next = function() {
 	counter++;
-//	josm.alert("Action is executing ... "+counter);	
 	nbs.clearAll();
-	nbs.add(nodeBuildings[counter]);
-	var autoScaleAction = org.openstreetmap.josm.actions.AutoScaleAction;
-	autoScaleAction.zoomToSelection();
+	var thiscounter = counter-1;
+	if (thiscounter < nodeBuildings.length) {
+	    if (nodeBuildings[thiscounter].tags) {
+		if (nodeBuildings[thiscounter].tags.building)  {
+		    nbs.add(nodeBuildings[thiscounter]);
+		    var autoScaleAction = org.openstreetmap.josm.actions.AutoScaleAction;
+		    autoScaleAction.zoomToSelection();
+		} else {
+		    exports.next();
+		};
+	    };
+	} else {
+	    josm.alert("Done! " + nodeBuildings.length " - if you skipped any buildings, press start to start over again.");	
+	    counter = 0;
+	};
     };
 
     // The advanced setting of edit.zoom-enlarge-bbox effects this. Usual setting 0.002. Recmmend 0.0001 for small buildings.
@@ -103,14 +118,19 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 		};
 	    };
 	};
-	nbs.clearAll();
-	if (way !== '') {
-	    // Now select the (last) way, so it can be transformed manually
-	    nbs.add(way);
+	if (nodes.length === 0) {
+	    exports.next();
+	} else {
+	    nbs.clearAll();
+	    if (way !== '') {
+		// Now select the (last) way, so it can be transformed manually
+		nbs.add(way);
+	    };
 	};
     };
 
     function addMenuItems() {
+	addMenuItem("start","Get data and start.", exports.getNodeBuildings );
 	addMenuItem("next","Go to next node building in download.", exports.next );
 	addMenuItem("circle","Turn node into round building",(function(){ exports.expand("circle"); }) );
 	addMenuItem("rect_side","Turn node into round building",(function(){ exports.expand("rectangle_side"); }) );
