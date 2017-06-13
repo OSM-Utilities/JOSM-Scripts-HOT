@@ -53,6 +53,7 @@
 	nodeBuildings = dataset.query("type:node building");
 	buildings = countNodeBuildings(layer);
 	console.println("Number of node-buildings to expand: " + nodeBuildings.length);
+	josm.alert("Number of node-buildings to expand: " + nodeBuildings.length);
 	nbs = dataset.selection; // new DataSetSelectionFacade(ds);
 	nbs.clearAll();
 	exports.next();
