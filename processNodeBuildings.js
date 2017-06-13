@@ -51,15 +51,15 @@
 	console.println("Number of node-buildings to expand: " + nodeBuildings.length);
 	nbs = dataset.selection; // new DataSetSelectionFacade(ds);
 	nbs.clearAll();
-	//next();
-	//expand("square"); 
+//	exports.next();
+//	exports.expand("rectangle_up"); 
     };
 
     exports.reconfigure = function(length) {
 	defaultsidelength = length;
     }
     
-    function next() {
+    exports.next = function() {
 	counter++;
 //	josm.alert("Action is executing ... "+counter);	
 	nbs.clearAll();
@@ -77,7 +77,7 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.visit(pos);
 org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0);
 */
 
-    function expand(type) {
+    exports.expand = function(type) {
 	var nodes = nbs.nodes;
 	//console.println("id="+nodes[0].id);
 	// expandNodeBuilding(layer,nodes[0],distance,id,tagName);
@@ -92,7 +92,12 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 		    switch(type) {
 		    case "circle":  way = expandNodeBuildingToCircle(layer,node,defaultsidelength); break;
 		    case "square":  way = expandNodeBuildingToSquare(layer,node,defaultsidelength); break;
-		    case "rectangle": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength*1.5, 0, defaultsidelength); break; 
+		    case "diamond":  way = expandNodeBuildingToSquare(layer,node,defaultsidelength,45); break;
+		    case "rectangle":
+		    case "rectangle_up": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength*1.5, 0, defaultsidelength); break;
+		    case "rectangle_side": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength*1.5, 90, defaultsidelength); break;
+		    case "rectangle_45": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength*1.5, 45, defaultsidelength); break;
+		    case "rectangle_-45": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength*1.5, -45, defaultsidelength); break; 
 		    default:  way = expandNodeBuildingToSquare(layer,node,defaultsidelength); break;
 		    };
 		};
@@ -106,10 +111,14 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
     };
 
     function addMenuItems() {
-	addMenuItem("next","Go to next node building in download.", next );
-	addMenuItem("circle","Turn node into round building",(function(){ expand("circle"); }) );
-	addMenuItem("square","Turn node into round building",(function(){ expand("square"); }) );
-	addMenuItem("rect","Turn node into round building",(function(){	expand("rectangle"); }) );
+	addMenuItem("next","Go to next node building in download.", exports.next );
+	addMenuItem("circle","Turn node into round building",(function(){ exports.expand("circle"); }) );
+	addMenuItem("square","Turn node into round building",(function(){ exports.expand("square"); }) );
+	addMenuItem("diamond","Turn node into round building",(function(){ exports.expand("diamond"); }) );
+	addMenuItem("rect_up","Turn node into round building",(function(){ exports.expand("rectangle_up"); }) );
+	addMenuItem("rect_side","Turn node into round building",(function(){ exports.expand("rectangle_side"); }) );
+	addMenuItem("rect-45","Turn node into round building",(function(){ exports.expand("rectangle_-45"); }) );
+	addMenuItem("rect+45","Turn node into round building",(function(){ exports.expand("rectangle_45"); }) );
     };
     
     function addMenuItem(name,tooltip,fn) {
@@ -146,15 +155,18 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 	};
     };	
 
-    function getNodes(oldNode,lat,lon,dist,n,ang,distort) {
-	console.println("GetNodes: "+lat + " "+lon+" " + dist + " " + ang);
+    function getNodes(oldNode,lat,lon,dist,n,orientation,distort) {
+	// console.println("GetNodes: "+lat + " "+lon+" " + dist + " " + orientation);
 	var nodes=[];
 	for(var j=0; j<n; j++)
 	{
 	    //console.println("j="+tags);
-	    var brng = j * 2 * Math.PI/n + ang/180*Math.PI -((j%2)*2-1)*distort/180*Math.PI;
+	    var brng = orientation * rad + (2*Math.PI)/(2*n) +  j * (2*Math.PI)/n;
+	    if (distort !== 0) {
+		brng +=  2 * (0.5-(j%2)) * (distort * rad * 4/n - (2*Math.PI)/(2*n));
+	    };
      	    var offsetpoint = geoutils.transport(lat,lon, brng, dist);
-	    console.println(j+" " + offsetpoint.lat/rad + " " + offsetpoint.lon/rad);
+	    // console.println(j+" " + offsetpoint.lat/rad + " " + offsetpoint.lon/rad);
 	    if(j==0){
 		nodes[j] = oldNode;
 		nodes[j].pos = {lat:offsetpoint.lat/rad, lon:offsetpoint.lon/rad};
@@ -167,27 +179,42 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 	return nodes;
     };
 
+    function annotate(nodeBuilding,text,remove) {
+	var tags = nodeBuilding.tags;
+	var tagForAnnotation = "source";
+    	//var tagForAnnotation = "nodeBldgExp";
+	//text = "yes";
+	if (remove) {
+	    tags[tagForAnnotation] = null;
+	} else {
+	    if (text)  {
+		if (text !== '' && tagForAnnotation != '') {
+		    if (tags[tagForAnnotation]) {
+			tags[tagForAnnotation] += ";";
+		    } else {
+			tags[tagForAnnotation] = "";
+		    }
+		    tags[tagForAnnotation] += "nodeBldgExp:"+text;
+		};
+	    };
+	};
+	if (nodeBuilding.tags) {
+	    nodeBuilding.tags[tagForAnnotation] = tags[tagForAnnotation];
+	};
+	return tags;
+    };
     
     function expandNodeBuilding(layer, nodeBuilding, text, length, corners, angle, distort) {
 	// d is the intended length of the building side. We're going to offset diagnonally by half a diagnoal: d*sqrt(2)/2.
 	// var tagDone={};
-	var tags = nodeBuilding.tags;
+	//var tags = nodeBuilding.tags;
 	// console.println(tags);
 	var nodes=[];
 	var lat=nodeBuilding.lat*rad;
 	var lon=nodeBuilding.lon*rad;
 	nodes = getNodes(nodeBuilding,lat,lon,length,corners,angle,distort);
 	nodes[nodes.length]=nodes[0];
-	if (text)  {
-	    if (text !== '') {	   
-		if (tags.source) {
-		    tags.source += ";";
-		} else {
-		    tags.source = "";
-		}
-		tags.source += "nodeBldgExp:"+text;
-	    };
-	};
+	var tags = annotate(nodeBuilding,text);
 	//console.println("o="+tags);
   	var way = drawWays(nodes,tags,layer);
 	nodes[0].tags = null;
@@ -195,40 +222,46 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
     };
 
     // Does work yet - dims and orientation not correct.
-    function expandNodeBuildingToRectangle(layer, nodeBuilding, side_length_long, orientation, side_length_short) {
+    function expandNodeBuildingToRectangle(layer, nodeBuilding, side_length_long, orientation, side_length_short,text) {
 	if (!side_length_long)
 	    side_length_long = defaultsidelength;
 	if (!side_length_short)
 	    side_length_short = defaultsidelength;
+	if (!text)
+	    text = '';
 	var angle_offset = Math.atan(side_length_short/side_length_long)/rad;
 	var angle_1 = 2*angle_offset;
 	var angle_2 = 180 - angle_1;
 	if (!orientation)
-	    orientation = angle_offset;
-	else
-	    orientation += angle_offset;
+	    orientation = 0
 	var radius = Math.sqrt(Math.pow(side_length_long,2) + Math.pow(side_length_short,2))/2;
-	return expandNodeBuilding(layer, nodeBuilding, "square_building", radius, 4, orientation, angle_1);
+	//console.println("abc " + side_length_long + " " + side_length_short + " " + radius + " " +angle_offset);
+	return expandNodeBuilding(layer, nodeBuilding, text, radius, 4, orientation, angle_offset);
     };
     
-    function expandNodeBuildingToSquare(layer, nodeBuilding, side_length, orientation) {
+    function expandNodeBuildingToSquare(layer, nodeBuilding, side_length, orientation, text) {
+	if (!text)
+	    text = '';
 	if (!orientation)
-	    orientation = 45;
-	else
-	    orientation += 45;
+	    orientation = 0;
 	if (!side_length)
 	    side_length = defaultsidelength;
 	var radius = side_length * Math.sqrt(2) / 2;
-	console.println("Square: "+radius+ " " + orientation);
-	return expandNodeBuilding(layer, nodeBuilding, "square_building", radius, 4, orientation, 0);
+	//console.println("Square: "+radius+ " " + orientation);
+	return expandNodeBuilding(layer, nodeBuilding, radius, 4, orientation, 0);
     };
 
-    function expandNodeBuildingToCircle(layer, nodeBuilding, diameter, orientation) {
+    function expandNodeBuildingToCircle(layer, nodeBuilding, diameter, orientation, text) {
 	if (!orientation)
 	    orientation = 0;
+	if (!text)
+	    text = '';
+	var n = 12;
+	orientation += 360/(2*n);
+	// var radius = Math.sqrt(Math.pow(side_length_long,2) + Math.pow(side_length_short,2))/2;
 	if (!diameter)
 	    diameter = defaultsidelength;
-	return expandNodeBuilding(layer, nodeBuilding, "round_building", diameter/2, 12, orientation, 0);
+	return expandNodeBuilding(layer, nodeBuilding, text, diameter/2, n, orientation, 0);
     };
 
 
