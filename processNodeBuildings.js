@@ -33,7 +33,7 @@
     var dataset;
 //    var ds = new org.openstreetmap.josm.data.osm.DataSet();
 //    var jmd = require("josm/mixin/DataSetMixin");
-    var defaultsidelength = 4;
+    var defaultsidelength = 5;
     
     exports.initNodeBuilding2Way = function() {
 	console.clear();
@@ -60,6 +60,9 @@
 //	exports.expand("rectangle_up"); 
     };
 
+    //TODO: It may be good to be able to manually tag buidings... e.g. with 'fixme', then visit everything that has a fixme.
+    //TODO: Show some kind of progress indicator somewhere (console)?
+    
     exports.reconfigure = function(length) {
 	defaultsidelength = length;
     }
@@ -79,7 +82,7 @@
 		};
 	    };
 	} else {
-	    josm.alert("Done! " + nodeBuildings.length " - if you skipped any buildings, press start to start over again.");	
+	    josm.alert("Done! " + nodeBuildings.length + " - if you skipped any buildings, press start to start over again.");	
 	    counter = 0;
 	};
     };
@@ -93,6 +96,16 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.visit(pos);
 org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0);
 */
 
+    function selectNodeByLatLon(arr,lat,lat) {
+	for (var i=0 ; i<arr.length; i++) {
+	    if (arr[i].lat == lat && arr[i].lon == lon)
+		return i;
+	};
+	return -1;
+    };
+    
+    var autoadvance = true;
+    
     exports.expand = function(type) {
 	var nodes = nbs.nodes;
 	//console.println("id="+nodes[0].id);
@@ -126,13 +139,30 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 	    if (way !== '') {
 		// Now select the (last) way, so it can be transformed manually
 		nbs.add(way);
+		if (autoadvance)
+		    exports.next();
 	    };
 	};
     };
 
+    exports.addFixme = function(building) {	
+	var nodes = nbs.nodes;
+	var ways = nbs.ways;
+	for (var i=0 ; i<nodes.length; i++) {
+	    var node = nodes[i];
+	    annotate(node,"Needs improvement.");
+	};
+	for (var i=0 ; i<ways.length; i++) {
+	    var way = ways[i];
+	    annotate(way,"Needs improvement.");
+	};	
+    }
+
+    
     function addMenuItems() {
 	addMenuItem("start","Get data and start.", exports.getNodeBuildings );
 	addMenuItem("next","Go to next node building in download.", exports.next );
+	addMenuItem("fixme","Go to next node building in download.", exports.addFixme );
 	addMenuItem("circle","Turn node into round building",(function(){ exports.expand("circle"); }) );
 	addMenuItem("rect_side","Turn node into round building",(function(){ exports.expand("rectangle_side"); }) );
 	addMenuItem("rect-45","Turn node into round building",(function(){ exports.expand("rectangle_-45"); }) );
@@ -203,7 +233,8 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 
     function annotate(nodeBuilding,text,remove) {
 	var tags = nodeBuilding.tags;
-	var tagForAnnotation = "source";
+	var tagForAnnotation = "fixme";
+	//var tagForAnnotation = "source";
     	//var tagForAnnotation = "nodeBldgExp";
 	//text = "yes";
 	if (remove) {
@@ -326,7 +357,6 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 
 	//console.println("graham scan");
 	var convexHull=[];
-	var hullPoints=[];
 	var idx, latlon;
 	for(i=0; i<clusters.length; i++)
 	{
