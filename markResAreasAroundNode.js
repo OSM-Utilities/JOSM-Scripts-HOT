@@ -23,7 +23,7 @@ example 1:
 example 2:
 
     var a= require("JOSM-Scripts-HOT/markResAreasAroundNode.js");
-    a.markAreas(300, 3, 20, "ResAreaLayer", "landuse", "residential", "false");
+    a.markAreas(300, 3, 20, "ResAreaLayer", "landuse", "residential", false);
 
 
 gyslerc, Bjoern Hassler (http://bjohas.de)
@@ -39,6 +39,7 @@ June 2017
     var wb = require("josm/builder").WayBuilder;
     var command = require("josm/command");	
     var geoutils = require("JOSM-Scripts-HOT/lib/geoutils.js");
+    var utils = require("JOSM-Scripts-HOT/lib/utils.js");
     const rad = Math.PI/180;
 
     exports.markAreas = function(distancem, minNumBldgInResArea, bufferDistm, layerName, key, value, useFirstNodeOnly) {
@@ -56,7 +57,7 @@ June 2017
 	var tags = {};
 	tags[key]=value;
 	if (!useFirstNodeOnly)
-	    useFirstNodeOnly = "false";
+	    useFirstNodeOnly = false;
 	if (!bufferDistm)
 	    bufferDistm = 20;
 	exports.markAreasRaw(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly);
@@ -72,7 +73,7 @@ June 2017
 	var distance = distancem / 6371e3 / rad;
 	console.println("distance = "+distancem+" = "+distance + " deg lat");	
 	var layer = current_layer(layers); 
-	var buildings = countObjects(layer, useFirstNodeOnly); //Find subset of buildings
+	var buildings = utils.getBuildings(layer, useFirstNodeOnly); //Find subset of buildings
 	console.println("Number of nodes: " + buildings.numNodes);
 	console.println("Number of node-buildings: " + buildings.numNodeBuildings);
 	console.println("Number of ways: " + buildings.numWays );
@@ -103,80 +104,6 @@ June 2017
 	console.println("Active layer is " + layers.activeLayer.name)
 	return layers.activeLayer;
     }
-
-    function countObjects(layer,useFirstNodeOnly) {
-	var dataset = layer.data;
-	var result = dataset.query("type:way");
-	var numAreas = 0;
-	var numResidential = 0;
-	var numBuildings = 0;
-	var numWays= result.length;
-	var nodesinBuilding=[];
-	var allNodes=[];
-	var numAllNodes=0;
-	// TODO: Exceptions if nothing is selected, residential area or way may be selected. 
-	var nbs = dataset.selection;
-	console.println("Finding a cluster around node: "+nbs.objects[0]);
-	if(nbs.objects!=[])
-	{allNodes[numAllNodes]=[nbs.objects[0].lat,  nbs.objects[0].lon];
-	numAllNodes++;	}
-	for (j = 0; j < numWays; j++)
-	{
-	    var way = result[j];
-	    if(way.isArea()==true)
-	    { 
-		numAreas++;
-		var type = way.tags.building;
-		if(type)
-		{  
-		    /*
-		      TODO: The are some 'degenerate' cases.
-		      E.g. three node buildings on one line
-		      E.g. a building with a large side length (compared to clustering length), and several points down the side on one line
-		      The offset agorithm will still work, but because the objects don't 'span a plane', they will end up on the boundary of the area.
-		      The offset algorithm notices these straight segments, and a possible solution is to add both points (lef/right of the segment) and then run the hull algrithm again on those points.
-		     */
-// Could consider input buffering, which would double the number of nodes.
-	            if(useFirstNodeOnly=="true") {
-			allNodes[numAllNodes]=[result[j].firstNode().lat,  result[j].firstNode().lon];
-			numAllNodes++;
-		    } else {
-			nodesinBuilding=result[j].nodes; 
-			for(i=0; i<nodesinBuilding.length; i++){
-			    allNodes[numAllNodes]=[nodesinBuilding[i].lat, nodesinBuilding[i].lon];  
-			    numAllNodes++;
-			}
-		    }
-		    numBuildings++; 
-		}
-		if (way.tags.landuse) {
-		    if (way.tags.landuse==="residential") {
-			numResidential++;
-		    };
-		}
-	    }
-	}
-	var numNodeBuildings = 0;
-	result = dataset.query("type:node");
-	var numNodes = result.length;
-	for (j = 0; j < numNodes; j++) {
-	    var node = result[j];
-	    if (node.tags.building) {
-		allNodes[numAllNodes]=[node.lat, node.lon]; 
-		numNodeBuildings++; numAllNodes++;
-	    };
-	};	
-	return{ 
-	    numWays: numWays,
-	    numAreas: numAreas,
-	    numBuildings: numBuildings,
-	    numNodes: numNodes,
-	    numNodeBuildings: numNodeBuildings,
-	    numResidential: numResidential,
-	    allNodes:allNodes,
-	    numAllNodes:numAllNodes
-	};
-    };	
 
 
     function dbAndGrahamScan(dataset,distance,minNumBldgInResArea,tagName,layer,bufferDistm) { 
