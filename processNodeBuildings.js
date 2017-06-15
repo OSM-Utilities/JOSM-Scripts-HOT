@@ -6,10 +6,10 @@
 
   var a= require("JOSM-Scripts-HOT/processNodeBuildings.js");
   a.initNodeBuilding2Way();
-  a.reconfigure(4);
+  a.reconfigure(4,5,false);
 
   https://github.com/OSM-Utilities/JOSM-Scripts-HOT
-  gyslerc, Bjoern Hassler (http://bjohas.de)
+  Bjoern Hassler (http://bjohas.de), gyslerc
   June 2017
 
 */
@@ -22,6 +22,7 @@
     var wb = require("josm/builder").WayBuilder;
     var command = require("josm/command");	
     var geoutils = require("JOSM-Scripts-HOT/lib/geoutils.js");
+    var utils = require("JOSM-Scripts-HOT/lib/utils.js");
     const rad = Math.PI/180;
 // Shared vars
     var buildings;
@@ -33,7 +34,11 @@
     var dataset;
 //    var ds = new org.openstreetmap.josm.data.osm.DataSet();
 //    var jmd = require("josm/mixin/DataSetMixin");
-    var defaultsidelength = 5;
+    var allNodes;
+    var clusters;
+    var defaultsidelength = 4;
+    var defaultsidelength2 = 5;
+    var autoadvance = false;
     
     exports.initNodeBuilding2Way = function() {
 	console.clear();
@@ -50,8 +55,13 @@
 	layer = current_layer(layers); 
 	dataset = layer.data;
 	counter=0;
+	// buildings = countNodeBuildings(layer);
 	nodeBuildings = dataset.query("type:node building");
-	buildings = countNodeBuildings(layer);
+	allNodes = [];
+	for (var j=0; j<nodeBuildings.length; j++) { 
+	    allNodes[j] = [nodeBuildings[j].lat,  nodeBuildings[j].lon];
+	};
+	clusters = cluster(allNodes);
 	console.println("Number of node-buildings to expand: " + nodeBuildings.length);
 	josm.alert("Number of node-buildings to expand: " + nodeBuildings.length);
 	nbs = dataset.selection; // new DataSetSelectionFacade(ds);
@@ -60,21 +70,48 @@
 //	exports.expand("rectangle_up"); 
     };
 
-    //TODO: It may be good to be able to manually tag buidings... e.g. with 'fixme', then visit everything that has a fixme.
     //TODO: Show some kind of progress indicator somewhere (console)?
     
-    exports.reconfigure = function(length) {
-	defaultsidelength = length;
+    exports.reconfigure = function(length1,length2,auto) {
+	defaultsidelength = length1;
+	defaultsidelength2 = length2;
+	autoadvance = auto;
     }
+
+    var startdate ;
+    var nowdate ;
+
+    showtime = function(date,lastdate,number) {
+	// timing
+	var date2 = new Date();
+	var diff = date2 - date;
+	var last = date2 - lastdate;
+	// console.println("End: "+date2);
+	var perobj = "-";
+	if (number > 0) {
+	    perobj = Math.round(diff / number * 10)/10;
+	};
+	diff = Math.round(diff/1000);
+	last = Math.round(last);
+	console.println("time="+diff+" s, avg= "+perobj+" ms per object, since last: "+last + " ms");
+    };
     
     exports.next = function() {
+	if (counter==0) {
+	    startdate = new Date();
+	    nowdate = new Date();
+	    console.println("Start: "+startdate);
+	};
 	counter++;
 	nbs.clearAll();
+//	console.println("counter "+counter);
 	var thiscounter = counter-1;
 	if (thiscounter < nodeBuildings.length) {
-	    if (nodeBuildings[thiscounter].tags) {
-		if (nodeBuildings[thiscounter].tags.building)  {
-		    nbs.add(nodeBuildings[thiscounter]);
+	    bcounter = selectNodeByLatLon(allNodes,llN(allNodes,clusters,thiscounter));
+//	    console.println("bcounter "+bcounter+", " + llN(allNodes,clusters,thiscounter));
+	    if (nodeBuildings[bcounter].tags) {
+		if (nodeBuildings[bcounter].tags.building)  {
+		    nbs.add(nodeBuildings[bcounter]);
 		    var autoScaleAction = org.openstreetmap.josm.actions.AutoScaleAction;
 		    autoScaleAction.zoomToSelection();
 		} else {
@@ -85,6 +122,8 @@
 	    josm.alert("Done! " + nodeBuildings.length + " - if you skipped any buildings, press start to start over again.");	
 	    counter = 0;
 	};
+	showtime(startdate,nowdate,counter);
+	nowdate = new Date();
     };
 
     // The advanced setting of edit.zoom-enlarge-bbox effects this. Usual setting 0.002. Recmmend 0.0001 for small buildings.
@@ -95,16 +134,7 @@ org.openstreetmap.josm.gui.dialogs.SelectionListDialog.zoomToSelectedElement();
 org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.visit(pos);
 org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0);
 */
-
-    function selectNodeByLatLon(arr,lat,lat) {
-	for (var i=0 ; i<arr.length; i++) {
-	    if (arr[i].lat == lat && arr[i].lon == lon)
-		return i;
-	};
-	return -1;
-    };
     
-    var autoadvance = true;
     
     exports.expand = function(type) {
 	var nodes = nbs.nodes;
@@ -119,14 +149,15 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 	    if (node.tags) {
 		if (node.tags.building) {
 		    switch(type) {
-		    case "circle":  way = expandNodeBuildingToCircle(layer,node,defaultsidelength); break;
-		    case "square":  way = expandNodeBuildingToSquare(layer,node,defaultsidelength); break;
-		    case "diamond":  way = expandNodeBuildingToSquare(layer,node,defaultsidelength,45); break;
+		    case "circle_small":  way = expandNodeBuildingToCircle(layer,node,defaultsidelength); break;
+		    case "circle_large":  way = expandNodeBuildingToCircle(layer,node,defaultsidelength2); break;
+		    case "square":  way = expandNodeBuildingToSquare(layer,node,defaultsidelength2); break;
+		    case "diamond":  way = expandNodeBuildingToSquare(layer,node,defaultsidelength2,45); break;
 		    case "rectangle":
-		    case "rectangle_up": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength*1.5, 0, defaultsidelength); break;
-		    case "rectangle_side": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength*1.5, 90, defaultsidelength); break;
-		    case "rectangle_45": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength*1.5, 45, defaultsidelength); break;
-		    case "rectangle_-45": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength*1.5, -45, defaultsidelength); break; 
+		    case "rectangle_up": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength2*1.5, 0, defaultsidelength2); break;
+		    case "rectangle_side": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength2*1.5, 90, defaultsidelength2); break;
+		    case "rectangle_45": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength2*1.5, 45, defaultsidelength2); break;
+		    case "rectangle_-45": way = expandNodeBuildingToRectangle(layer, node, defaultsidelength2*1.5, -45, defaultsidelength2); break; 
 		    default:  way = expandNodeBuildingToSquare(layer,node,defaultsidelength); break;
 		    };
 		};
@@ -145,50 +176,62 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 	};
     };
 
+    exports.test = function() {
+	exports.next();
+	exports.expand("rectangle");
+	exports.next();
+	exports.expand("circle_small");
+	exports.next();
+	exports.expand("circle_large");
+	exports.next();
+	exports.expand("square");
+	exports.next();
+	exports.expand("diamond");
+	exports.next();
+	exports.expand("rectangle");
+	exports.next();
+	exports.expand("rectangle_up");
+	exports.next();
+	exports.expand("rectangle_side");
+	exports.next();
+	exports.expand("rectangle_45");
+	exports.next();
+	exports.expand("rectangle_-45");
+	exports.next();
+	josm.alert("Do not upload!!");
+    };
+    
     exports.addFixme = function(building) {	
 	var nodes = nbs.nodes;
 	var ways = nbs.ways;
 	for (var i=0 ; i<nodes.length; i++) {
 	    var node = nodes[i];
-	    annotate(node,"Needs improvement.");
+	    utils.appendTag(node,"fixme","nodeBlg:Needs improvement.");
 	};
 	for (var i=0 ; i<ways.length; i++) {
 	    var way = ways[i];
-	    annotate(way,"Needs improvement.");
+	    utils.appendTag(way,"fixme","nodeBlg:Needs improvement.");
 	};	
     }
 
     
     function addMenuItems() {
-	addMenuItem("start","Get data and start.", exports.getNodeBuildings );
-	addMenuItem("next","Go to next node building in download.", exports.next );
-	addMenuItem("fixme","Go to next node building in download.", exports.addFixme );
-	addMenuItem("circle","Turn node into round building",(function(){ exports.expand("circle"); }) );
-	addMenuItem("rect_side","Turn node into round building",(function(){ exports.expand("rectangle_side"); }) );
-	addMenuItem("rect-45","Turn node into round building",(function(){ exports.expand("rectangle_-45"); }) );
-	addMenuItem("rect_up","Turn node into round building",(function(){ exports.expand("rectangle_up"); }) );
-	addMenuItem("rect+45","Turn node into round building",(function(){ exports.expand("rectangle_45"); }) );
-	addMenuItem("square","Turn node into round building",(function(){ exports.expand("square"); }) );
-	addMenuItem("diamond","Turn node into round building",(function(){ exports.expand("diamond"); }) );
+	utils.addMenuItem("start","Get data and start.", exports.getNodeBuildings );
+	utils.addMenuItem("next","Go to next node building in download.", exports.next );
+	utils.addMenuItem("fixme","Go to next node building in download.", exports.addFixme );
+	utils.addMenuItem("circle_small","Turn node into round building",(function(){ exports.expand("circle_small"); }) );
+	utils.addMenuItem("circle_large","Turn node into round building",(function(){ exports.expand("circle_large"); }) );
+	utils.addMenuItem("rect_side","Turn node into round building",(function(){ exports.expand("rectangle_side"); }) );
+	utils.addMenuItem("rect-45","Turn node into round building",(function(){ exports.expand("rectangle_-45"); }) );
+	utils.addMenuItem("rect_up","Turn node into round building",(function(){ exports.expand("rectangle_up"); }) );
+	utils.addMenuItem("rect+45","Turn node into round building",(function(){ exports.expand("rectangle_45"); }) );
+	utils.addMenuItem("square","Turn node into round building",(function(){ exports.expand("square"); }) );
+	utils.addMenuItem("diamond","Turn node into round building",(function(){ exports.expand("diamond"); }) );
 
     };
     
-    function addMenuItem(name,tooltip,fn) {
-	var JSAction = require("josm/ui/menu").JSAction;
-	var menu=josm.menu.get("edit");
-	if (menu) {
-	    var action = new JSAction({
-		name: name,
-		tooltip: tooltip,
-		onInitEnabled: function() { this.enabled = true;  }
-	    });
-	    action.addToMenu(menu);
-	    action.onExecute = fn;
-	};
-    };
-    
+    /*
     function countNodeBuildings(layer) {
-
 	dataset = layer.data;
 	var nodeBuildings=[];
 	var numNodeBuildings = 0;
@@ -206,7 +249,8 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 	    numNodeBuildings:numNodeBuildings
 	};
     };	
-
+    */
+    
     function getNodes(oldNode,lat,lon,dist,n,orientation,distort) {
 	// console.println("GetNodes: "+lat + " "+lon+" " + dist + " " + orientation);
 	var nodes=[];
@@ -230,32 +274,6 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 	}
 	return nodes;
     };
-
-    function annotate(nodeBuilding,text,remove) {
-	var tags = nodeBuilding.tags;
-	var tagForAnnotation = "fixme";
-	//var tagForAnnotation = "source";
-    	//var tagForAnnotation = "nodeBldgExp";
-	//text = "yes";
-	if (remove) {
-	    tags[tagForAnnotation] = null;
-	} else {
-	    if (text)  {
-		if (text !== '' && tagForAnnotation != '') {
-		    if (tags[tagForAnnotation]) {
-			tags[tagForAnnotation] += ";";
-		    } else {
-			tags[tagForAnnotation] = "";
-		    }
-		    tags[tagForAnnotation] += "nodeBldgExp:"+text;
-		};
-	    };
-	};
-	if (nodeBuilding.tags) {
-	    nodeBuilding.tags[tagForAnnotation] = tags[tagForAnnotation];
-	};
-	return tags;
-    };
     
     function expandNodeBuilding(layer, nodeBuilding, text, length, corners, angle, distort) {
 	// d is the intended length of the building side. We're going to offset diagnonally by half a diagnoal: d*sqrt(2)/2.
@@ -267,7 +285,8 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 	var lon=nodeBuilding.lon*rad;
 	nodes = getNodes(nodeBuilding,lat,lon,length,corners,angle,distort);
 	nodes[nodes.length]=nodes[0];
-	var tags = annotate(nodeBuilding,text);
+	var tags = utils.appendTag(nodeBuilding,"comment","bShape:"+text);
+	//var tags = nodeBuilding.tags;
 	//console.println("o="+tags);
   	var way = drawWays(nodes,tags,layer);
 	if (nodes[0])
@@ -283,20 +302,22 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 	if (!side_length_short)
 	    side_length_short = defaultsidelength;
 	if (!text)
-	    text = '';
+	    text = 'rectangle';
 	var angle_offset = Math.atan(side_length_short/side_length_long)/rad;
 	var angle_1 = 2*angle_offset;
 	var angle_2 = 180 - angle_1;
 	if (!orientation)
 	    orientation = 0
 	var radius = Math.sqrt(Math.pow(side_length_long,2) + Math.pow(side_length_short,2))/2;
+	// Add a a tag to rectangle buildings:
+	// var tags = utils.appendTag(nodeBuilding,"comment","nodeBlg:rectangle");
 	//console.println("abc " + side_length_long + " " + side_length_short + " " + radius + " " +angle_offset);
 	return expandNodeBuilding(layer, nodeBuilding, text, radius, 4, orientation, angle_offset);
     };
     
     function expandNodeBuildingToSquare(layer, nodeBuilding, side_length, orientation, text) {
 	if (!text)
-	    text = '';
+	    text = 'square';
 	if (!orientation)
 	    orientation = 0;
 	if (!side_length)
@@ -310,7 +331,7 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
 	if (!orientation)
 	    orientation = 0;
 	if (!text)
-	    text = '';
+	    text = 'circle';
 	var n = 12;
 	orientation += 360/(2*n);
 	// var radius = Math.sqrt(Math.pow(side_length_long,2) + Math.pow(side_length_short,2))/2;
@@ -341,33 +362,49 @@ org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor.enlargeBoundingBox(1.0
     }	
 
     
-    function dbAndGrahamScan(dataset,distance,minNumBldgInResArea,tagName,layer,bufferDistm) { 
-
+    function cluster(dataset) {
 	const DBSCAN = require("JOSM-Scripts-HOT/lib/DBSCAN.js");
-	const graham_scan = require("JOSM-Scripts-HOT/lib/graham_scan.js");
-
-	dataset = geoutils.flatten(dataset);
-	
-	//console.println("db scan");
+	// const graham_scan = require("JOSM-Scripts-HOT/lib/graham_scan.js");
+	//dataset = geoutils.flatten(dataset);	<- don't do this, as we need exact values, to find nodes later.
 	var dbscan = new DBSCAN();
-
-	//TODO: minNumBldgInResArea doesn't quite work here - because if you work on 'all nodes' minNumBldgInResArea is compared to all nodes, rather than buildings.
-	var clusters = dbscan.run(dataset, distance, minNumBldgInResArea); 
+        var distance = 50 / 6371e3 / rad;
+	var clusters = dbscan.run(dataset, distance, 1); 
 	console.println("Total number of clusters found: " + clusters.length); 
+	return clusters;	
+    };
 
-	//console.println("graham scan");
-	var convexHull=[];
+//TODO: Rather than searching every time, it would be better to create a map once, check it, and then use it.
+    
+    // nodeBuildings[selectNodeByLatLon(allNodes,llN(clusters,i))]
+    function selectNodeByLatLon(arr,latlon) {
+	for (var i=0 ; i<arr.length; i++) {
+	    // could also do this by tolerace...
+	    if (arr[i][0] == latlon[0] && arr[i][1] == latlon[1]) {
+		// console.println("lat="+arr[i][0] +",lat="+ latlon[0] +",lon=" + arr[i][1] +",lon="+ latlon[1]);
+		return i;
+	    };
+	};
+	return -1;
+    };
+    
+    function llN(dataset,clusters,N) {
 	var idx, latlon;
-	for(i=0; i<clusters.length; i++)
+	var counter = -1;
+	for(var i=0; i<clusters.length; i++)
 	{
-	    for(j=0; j<clusters[i].length; j++)
+	    for(var j=0; j<clusters[i].length; j++)
 	    {
-		idx=clusters[i][j];
-		latlon=dataset[idx];		
+		counter++;
+		if (counter == N) {
+		    idx=clusters[i][j];
+		    latlon=dataset[idx];
+		    return latlon;
+		};
 	    }
 	};
+	return false;
     };	
-
+    
 
 }());
 
