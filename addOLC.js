@@ -52,6 +52,10 @@
     var command = require("josm/command");	
     var OpenLocationCode = require("JOSM-Scripts-HOT/lib/openlocationcode_1.js");
     var geoutils = require("JOSM-Scripts-HOT/lib/geoutils.js");
+    var refolc = "ref:olc";
+    var refolcshort = "ref:olc:short";
+    var noteolc = "note:olc";
+
     
     exports.addOLC = function(locality) {
 	return exports.addOrChangeOLC("building",false, locality);
@@ -60,13 +64,21 @@
     exports.changeOLC = function(locality) {
 	return exports.addOrChangeOLC("building",true, locality);
     };
+
+    exports.addfwhc = function() {
+	var refolc = "ref:fwhc";
+	var refolcshort = "ref:fwhc:short";
+	var noteolc = "";
+	a.addOrChangeOLC("landuse=residential",false,{"lat":-13.9712444, "lon":29.605763, "place":"Fiwila, Zambia"});
+	a.addOrChangeOLC("building",false,{"lat":-13.9712444, "lon":29.605763, "place":"Fiwila, Zambia"});
+    };
     
-    exports.addOrChangeOLC = function(query, force,locality) {
+    exports.addOrChangeOLC = function(query, force, locality) {
 	// console.clear();
 	var date = new Date();
 	console.println("Start: "+date);
 	var layer = layers.activeLayer;
-	var objects =	layer.data.query(query);
+	var objects = layer.data.query(query);
 	var numB = objects.length;
 	console.println("Number of objects for '"+query+"': " + numB);
 	var count = 0;
@@ -113,39 +125,41 @@
 	var sigDigLon = geoutils.significantDigitsOLC(EW);	
 	var note = "";
 	var tags = object.tags;
-	if (sigDigLat>accuracy+1 || sigDigLon>accuracy+1) {
-	    console.println("Encountered small objects: " + sigDigLat + " | " + sigDigLon+" > "+accuracy);
-	    tags["note:olc"] = append(tags,"note:olc","Small object: " + sigDigLat + " | " + sigDigLon+" > "+accuracy);
-	}
-	if (sigDigLat<7 || sigDigLon<7) {
-	    console.println("Encountered large objects: " + sigDigLat + ", " + sigDigLon);
-	    tags["note:olc"] = append(tags,"note:olc","Large object: " + sigDigLat + ", " + sigDigLon);
-	}
+	if (noteolc !== '') {
+	    if (sigDigLat>accuracy+1 || sigDigLon>accuracy+1) {
+		console.println("Encountered small objects: " + sigDigLat + " | " + sigDigLon+" > "+accuracy);
+		tags[noteolc] = append(tags,noteolc,"Small object: " + sigDigLat + " | " + sigDigLon+" > "+accuracy);
+	    }
+	    if (sigDigLat<7 || sigDigLon<7) {
+		console.println("Encountered large objects: " + sigDigLat + ", " + sigDigLon);
+		tags[noteolc] = append(tags,noteolc,"Large object: " + sigDigLat + ", " + sigDigLon);
+	    }
+	};
 	var code = OpenLocationCode.encode(coord.lat, coord.lon, accuracy);
 	// console.println("Code: "+code + " " + coord.lat + " " + coord.lon);
 	var count = 0;
-	if (tags["ref:olc"]) {
-	    if (tags["ref:olc"] === code) {
+	if (tags[refolc]) {
+	    if (tags[refolc] === code) {
 		// console.println("Maintaining code: "+code);
 	    } else {
 		if (force) {
-		    console.println("Changing code: "+tags["ref:olc"]+" to "+code);
-		    tags["ref:olc"] = code;
+		    console.println("Changing code: "+tags[refolc]+" to "+code);
+		    tags[refolc] = code;
 		    count=1;
 		} else {
-		    console.println("Not changing code: "+tags["ref:olc"]+" to "+code);
-		    code = tags["ref:olc"];
+		    console.println("Not changing code: "+tags[refolc]+" to "+code);
+		    code = tags[refolc];
 		}
 	    }
 	} else {
-	    tags["ref:olc"] = code;
+	    tags[refolc] = code;
 	    count=1;
 	}
 	if (locality) {
 	    // Always change short code
 	    scode = OpenLocationCode.shorten(code, locality.lat, locality.lon);
 	    var scode = scode + ", " + locality.place;
-	    tags["ref:olc:short"] = scode;
+	    tags[refolcshort] = scode;
 	    // console.println("- Short code: "+scode);
 	};
 	// Does not work... pass-by-ref?
