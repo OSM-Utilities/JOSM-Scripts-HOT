@@ -37,52 +37,52 @@ June 2017
     var geoutils = require("JOSM-Scripts-HOT/lib/geoutils.js");
     var utils = require("JOSM-Scripts-HOT/lib/utils.js");
     const rad = Math.PI/180;
-// Shared vars
+    // Shared vars
     var hasMenu = false;
-	var defaultdist=300;
-	
+    var defaultdist=300;
+    
     exports.initMarkResAreas = function() {
 	console.clear();
 	if (!hasMenu) {
 	    addMenuItems();
 	    //hasMenu = true;
-		console.println("Added menu items in Edit. You can add them to the toolbar using preferences.");
+	    console.println("Added menu items in Edit. You can add them to the toolbar using preferences.");
 	} else {
 	    console.println("Menu already added in Toolbar>Edit");
 	};	
     };
     
-	function addMenuItems() {
+    function addMenuItems() {
 	utils.addMenuItem("increment distance by 50m","increment distance by 50m", 
-		(function(){ 
-			defaultdist=defaultdist+50; if(defaultdist>=500){defaultdist=500;} josm.alert("The new distance setting is: " + defaultdist);
-			exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
+			  (function(){ 
+			      defaultdist=defaultdist+50; if(defaultdist>=500){defaultdist=500;} josm.alert("The new distance setting is: " + defaultdist);
+			      exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
 	utils.addMenuItem("decrement distance by 50m","increment distance by 50m", 
-		(function(){
-			defaultdist=defaultdist-50; if(defaultdist<=50){defaultdist=50;} josm.alert("The new distance setting is: " + defaultdist);	
-			exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
+			  (function(){
+			      defaultdist=defaultdist-50; if(defaultdist<=50){defaultdist=50;} josm.alert("The new distance setting is: " + defaultdist);	
+			      exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
 	utils.addMenuItem("Distance 100m, no minimum of nodes","Distance 100m, no minimum of nodes",
-		(function(){ exports.markAreas(100, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+			  (function(){ exports.markAreas(100, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
 	utils.addMenuItem("Distance 100m, min 10 nodes","Distance 100m, min 10 nodes",
-		(function(){ exports.markAreas(100, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+			  (function(){ exports.markAreas(100, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
 	utils.addMenuItem("Distance 500m, no minimum of nodes","Distance 500m, no minimum of nodes",
-		(function(){ exports.markAreas(500, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+			  (function(){ exports.markAreas(500, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
 	utils.addMenuItem("Distance 500m, min 10 nodes","Distance 500m, min 10 nodes",
-		(function(){ exports.markAreas(500, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+			  (function(){ exports.markAreas(500, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
 	utils.addMenuItem("Distance 1000m, no minimum of nodes","Distance 1000m, no minimum of nodes",
-		(function(){ exports.markAreas(1000, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+			  (function(){ exports.markAreas(1000, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
 	utils.addMenuItem("Distance 1000m, min 10 nodes","Distance 1000m, min 10 nodes",
-		(function(){ exports.markAreas(1000, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-    return hasMenu = true;
-	};
+			  (function(){ exports.markAreas(1000, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	return hasMenu = true;
+    };
 
-	function checkValidSelection(layers){
+    function checkValidSelection(layers){
 	var layer=current_layer(layers)
 	var dataset = layer.data;	
 	if (dataset.selection.objects[0]==undefined){isValid=false;	josm.alert("Please select a node or building and try again");}
 	else{isValid=true;}
 	return isValid;
-	}
+    }
 
     function getBuildings(layer,useFirstNodeOnly,buffer) {
 	if (!buffer)
@@ -101,13 +101,13 @@ June 2017
 	var numAllNodes=0;
 	var nbs=[];	
 	if(dataset.selection.objects[0].type=="way")
-	nbs=dataset.selection.objects[0].firstNode()
+	    nbs=dataset.selection.objects[0].firstNode()
 	else
-	nbs=dataset.selection.objects[0]
+	    nbs=dataset.selection.objects[0]
 	console.println("Finding a cluster around node: "+nbs);
 	if(nbs.objects!=undefined)
 	{allNodes[numAllNodes]=[nbs.lat,  nbs.lon];
-	numAllNodes++;	}
+	 numAllNodes++;	}
 	for (j = 0; j < numWays; j++)
 	{
 	    var way = result[j];
@@ -123,8 +123,8 @@ June 2017
 		      E.g. a building with a large side length (compared to clustering length), and several points down the side on one line
 		      The offset agorithm will still work, but because the objects don't 'span a plane', they will end up on the boundary of the area.
 		      The offset algorithm notices these straight segments, and a possible solution is to add both points (lef/right of the segment) and then run the hull algrithm again on those points.
-		     */
-// Could consider input buffering, which would double the number of nodes.
+		    */
+		    // Could consider input buffering, which would double the number of nodes.
 	            if(useFirstNodeOnly=="true") {
 			allNodes[numAllNodes]=[result[j].firstNode().lat,  result[j].firstNode().lon];
 			numAllNodes++;
@@ -166,7 +166,7 @@ June 2017
 	    numAllNodes:numAllNodes
 	};
     };
-	
+    
     exports.markAreas = function(distancem, minNumBldgInResArea, bufferDistm, layerName, key, value, useFirstNodeOnly) {
 	if (!distancem)
 	    distancem = 150;
@@ -308,7 +308,7 @@ June 2017
 	command.add(nodeVecIn).applyTo(layer)
 	command.add(w2).applyTo(layer)
     };		
-        
+    
 }());
 
 
