@@ -65,14 +65,14 @@ June 2017
 			  (function(){ exports.markAreas(100, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
 	utils.addMenuItem("Distance 100m, min 10 nodes","Distance 100m, min 10 nodes",
 			  (function(){ exports.markAreas(100, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	utils.addMenuItem("Distance 500m, no minimum of nodes","Distance 500m, no minimum of nodes",
-			  (function(){ exports.markAreas(500, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	utils.addMenuItem("Distance 500m, min 10 nodes","Distance 500m, min 10 nodes",
-			  (function(){ exports.markAreas(500, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	utils.addMenuItem("Distance 1000m, no minimum of nodes","Distance 1000m, no minimum of nodes",
-			  (function(){ exports.markAreas(1000, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	utils.addMenuItem("Distance 1000m, min 10 nodes","Distance 1000m, min 10 nodes",
-			  (function(){ exports.markAreas(1000, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	utils.addMenuItem("Distance 150m, no minimum of nodes","Distance 150m, no minimum of nodes",
+			  (function(){ exports.markAreas(150, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	utils.addMenuItem("Distance 150m, min 10 nodes","Distance 150m, min 10 nodes",
+			  (function(){ exports.markAreas(150, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	utils.addMenuItem("Distance 200m, no minimum of nodes","Distance 200m, no minimum of nodes",
+			  (function(){ exports.markAreas(200, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	utils.addMenuItem("Distance 200m, min 10 nodes","Distance 200m, min 10 nodes",
+			  (function(){ exports.markAreas(200, 10, 20, "ResAreaLayer", "landuse", "residential", false); }) );
 	return hasMenu = true;
     };
 
@@ -105,9 +105,10 @@ June 2017
 	else
 	    nbs=dataset.selection.objects[0]
 	console.println("Finding a cluster around node: "+nbs);
-	if(nbs.objects!=undefined)
-	{allNodes[numAllNodes]=[nbs.lat,  nbs.lon];
-	 numAllNodes++;	}
+	if(nbs.objects!=undefined) {
+	    allNodes[numAllNodes]=[nbs.lat,  nbs.lon];
+	    numAllNodes++;
+	}
 	for (j = 0; j < numWays; j++)
 	{
 	    var way = result[j];
