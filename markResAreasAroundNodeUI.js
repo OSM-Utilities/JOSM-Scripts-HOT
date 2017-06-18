@@ -77,10 +77,14 @@ June 2017
     };
 
     function checkValidSelection(layers){
-	var layer=current_layer(layers)
+	var layer = current_layer(layers);
 	var dataset = layer.data;	
-	if (dataset.selection.objects[0]==undefined){isValid=false;	josm.alert("Please select a node or building and try again");}
-	else{isValid=true;}
+	if (dataset.selection.objects[0]==undefined) {
+	    isValid=false;
+	    josm.alert("Please select a node or building and try again");
+	} else {
+	    isValid=true;
+	}
 	return isValid;
     }
 
@@ -118,14 +122,6 @@ June 2017
 		var type = way.tags.building;
 		if(type)
 		{  
-		    /*
-		      TODO: The are some 'degenerate' cases.
-		      E.g. three node buildings on one line
-		      E.g. a building with a large side length (compared to clustering length), and several points down the side on one line
-		      The offset agorithm will still work, but because the objects don't 'span a plane', they will end up on the boundary of the area.
-		      The offset algorithm notices these straight segments, and a possible solution is to add both points (lef/right of the segment) and then run the hull algrithm again on those points.
-		    */
-		    // Could consider input buffering, which would double the number of nodes.
 	            if(useFirstNodeOnly=="true") {
 			allNodes[numAllNodes]=[result[j].firstNode().lat,  result[j].firstNode().lon];
 			numAllNodes++;
@@ -152,8 +148,20 @@ June 2017
 	for (j = 0; j < numNodes; j++) {
 	    var node = result[j];
 	    if (node.tags.building) {
-		allNodes[numAllNodes]=[node.lat, node.lon]; 
-		numNodeBuildings++; numAllNodes++;
+		/*
+		  TODO: The are some 'degenerate' cases.
+		  E.g. three node buildings on one line
+		  The offset agorithm will still work, but because the objects don't 'span a plane', they will end up on the boundary of the area.
+		  At this point add input buffering for node-buildings.
+		*/
+		var inputBuffer = false;
+		if (inputBuffer) {
+		    console.log("Input buffer not implemented.");
+		} else {
+		    allNodes[numAllNodes]=[node.lat, node.lon]; 
+		    numNodeBuildings++;
+		    numAllNodes++;
+		};
 	    };
 	};	
 	return{ 
