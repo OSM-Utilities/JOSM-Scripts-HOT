@@ -48,7 +48,7 @@ June 2017
 	    //hasMenu = true;
 	    console.println("Added menu items in Edit. You can add them to the toolbar using preferences.");
 	} else {
-	    console.println("Menu already added in Toolbar>Edit");
+	    console.println("Menu already added in Toolbar>Edit.");
 	};	
     };
     
@@ -80,10 +80,10 @@ June 2017
 	var layer = current_layer(layers);
 	var dataset = layer.data;	
 	if (dataset.selection.objects[0]==undefined) {
-	    isValid=false;
-	    josm.alert("Please select a node or building and try again");
+	    isValid = false;
+	    josm.alert("Please select a node or building and try again.");
 	} else {
-	    isValid=true;
+	    isValid = true;
 	}
 	return isValid;
     }
