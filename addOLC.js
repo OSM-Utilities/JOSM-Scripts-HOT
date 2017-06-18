@@ -2,9 +2,16 @@
 
   addOLC.js
 
-  This script (intended for the JOSM scripting plugin) adds Open Location Codes 
-  to buildings on active layer in JOSM. The code can be easily adapted to add
-  Open Location Codes to other objects.
+  This script (intended for the JOSM scripting plugin) adds Open
+  Location Codes-like code to buildings on the active layer in
+  JOSM. The code can be easily adapted to add Open Location Codes to
+  other objects.
+
+  As OLC just encodes lat,lon, an OLC tag would be redundant and
+  should not be added to OpenStreetMap. However, you may want to
+  assign addresses/postcode-type tags to buildings (or other objects)
+  on the basis of OLC. There are examples provided below, see comments
+  below.
 
   Note: From openlocationcode.js: "A 10 character code represents a 13.5x13.5 meter area 
   (at the equator). An 11 character code represents approximately a 2.8x3.5 meter area."
@@ -21,20 +28,30 @@
 
   Run like this:
 
-  // Long codes only
+  // Long codes only (should not be uploaded to OSM)
   var a= require("JOSM-Scripts-HOT/addOLC.js");
   a.addOLC();
 
   // To get short codes also, you need to pass a place and it's coordinates:
+  // (should not be uploaded to OSM)
   var a= require("JOSM-Scripts-HOT/addOLC.js");
   a.addOLC({"lat":-13.9712444, "lon":29.605763, "place":"Fiwila, Zambia"});       
-
-  //TODO: Pass in accuracy.
 
   // Existing codes can be updated with 
   var a= require("JOSM-Scripts-HOT/addOLC.js");
   a.changeOLC();
   // Note that the short code is always updated if details for short code are provided.
+
+  // An example for an address generating function, here for Fiwila
+  // Mission Health Centre (fmhc).  The function adds ref:fmhc and
+  // ref:fmhc:short to buildings and residental areas, which is can be
+  // used by Fiwila Mission Health Centre to locate buildings. Note
+  // that once such codes are generated, they become addressed, and
+  // should NOT be updated (even if the imagery was slightly off).
+  var a= require("JOSM-Scripts-HOT/addOLC.js");
+  a.addfmhc();
+
+  //TODO: Output a warning for duplicate codes, so they can be adjusted manually.
 
   Bjoern Hassler (http://bjohas.de)
   gyslerc
@@ -52,22 +69,29 @@
     var command = require("josm/command");	
     var OpenLocationCode = require("JOSM-Scripts-HOT/lib/openlocationcode_1.js");
     var geoutils = require("JOSM-Scripts-HOT/lib/geoutils.js");
-    var refolc = "ref:olc";
-    var refolcshort = "ref:olc:short";
-    var noteolc = "note:olc";
-
+    var refolc = "";
+    var refolcshort = "";
+    var noteolc = "";
     
     exports.addOLC = function(locality) {
+        josm.alert("Ths is an example only - do not upload to OpenStreetMap.");
+	refolc = "ref:olc";
+	noteolc = "note:olc";	
 	return exports.addOrChangeOLC("building",false, locality);
     };
 
     exports.changeOLC = function(locality) {
+        josm.alert("Ths is an example only - do not upload to OpenStreetMap.");
+	refolc = "ref:olc";
+	refolcshort = "ref:olc:short";
+	noteolc = "note:olc";	
 	return exports.addOrChangeOLC("building",true, locality);
     };
 
-    exports.addfwhc = function() {
-	var refolc = "ref:fwhc";
-	var refolcshort = "ref:fwhc:short";
+    exports.addfmhc = function() {
+	josm.alert("Ths is an example only - do not upload to OpenStreetMap.");
+	var refolc = "ref:fmhc";
+	var refolcshort = "ref:fmhc:short";
 	var noteolc = "";
 	a.addOrChangeOLC("landuse=residential",false,{"lat":-13.9712444, "lon":29.605763, "place":"Fiwila, Zambia"});
 	a.addOrChangeOLC("building",false,{"lat":-13.9712444, "lon":29.605763, "place":"Fiwila, Zambia"});
@@ -135,6 +159,9 @@
 		tags[noteolc] = append(tags,noteolc,"Large object: " + sigDigLat + ", " + sigDigLon);
 	    }
 	};
+	//TODO: Should check the code is unique. If not, adjust the
+	//code on this or the other object that already has the code. Or add warning to do this manually.
+	//If it's not possible, go to greater accuracy.
 	var code = OpenLocationCode.encode(coord.lat, coord.lon, accuracy);
 	// console.println("Code: "+code + " " + coord.lat + " " + coord.lon);
 	var count = 0;
