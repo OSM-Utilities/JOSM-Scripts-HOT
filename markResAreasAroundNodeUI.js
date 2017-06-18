@@ -39,7 +39,7 @@ June 2017
     const rad = Math.PI/180;
     // Shared vars
     var hasMenu = false;
-    var defaultdist=300;
+    var defaultdist=150;
     
     exports.initMarkResAreas = function() {
 	console.clear();
@@ -103,8 +103,8 @@ June 2017
 	if(dataset.selection.objects[0].type=="way")
 	    nbs=dataset.selection.objects[0].firstNode()
 	else
-	    nbs=dataset.selection.objects[0]
-	console.println("Finding a cluster around node: "+nbs);
+	    nbs=dataset.selection.objects[0];
+	console.println("Finding a cluster around node: " + nbs);
 	if(nbs.objects!=undefined) {
 	    allNodes[numAllNodes]=[nbs.lat,  nbs.lon];
 	    numAllNodes++;
