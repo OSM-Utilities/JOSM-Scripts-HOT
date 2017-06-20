@@ -7,9 +7,12 @@ in active layer in JOSM, and adds residential areas to new layer.
 Run like this:
 var a= require("JOSM-Scripts-HOT/markResAreasAroundNodeUI.js");
 a.initMarkResAreas(); // Needs to be run only once after startup of JOSM. 
-Then tun preset settings from Toolbar> Edit>  Distance 100m, min 10 nodes....
+Then use preset settings from Toolbar> Edit>  Distance 100m, min 10 nodes....
 
-example 1: For adjustable settings
+Description: If a node or way is selected, a cluster is formed around selected point. 
+If nothing is selected. Clustering is performed on the entire downloaded area. 
+
+Option 1: For adjustable settings
     var a= require("JOSM-Scripts-HOT/markResAreasAroundNodeUI.js");
     a.markAreas(300, 3, 20, "ResAreaLayer", "landuse", "residential", false); 
 	
@@ -40,6 +43,7 @@ June 2017
 // Shared vars
     var hasMenu = false;
 	var defaultdist=300;
+	var findOneClusterOnly=false;
 	
     exports.initMarkResAreas = function() {
 	console.clear();
@@ -79,10 +83,76 @@ June 2017
 	function checkValidSelection(layers){
 	var layer=current_layer(layers)
 	var dataset = layer.data;	
-	if (dataset.selection.objects[0]==undefined){isValid=false;	josm.alert("Please select a node or building and try again");}
+	if (dataset.selection.objects[0]==undefined){isValid="false";	josm.alert("Clustering entire area. This can take a while. If you are interested in marking residential areas around a point, select a node/way and rerun");}
 	else{isValid=true;}
 	return isValid;
 	}
+
+    exports.markAreas = function(distancem, minNumBldgInResArea, bufferDistm, layerName, key, value, useFirstNodeOnly) {
+	if (!distancem)
+	    distancem = 150;
+	if (!minNumBldgInResArea)
+	    minNumBldgInResArea = 3;	
+	if (minNumBldgInResArea<3) { minNumBldgInResArea=3; }
+	if (!layerName)
+	    layerName = "ResAreaLayer";
+	if (!key)
+	    key = "landuse";
+	if (!value)
+	    value = "residential";
+	var tags = {};
+	tags[key]=value;
+	if (!useFirstNodeOnly)
+	    useFirstNodeOnly = false;
+	if (!bufferDistm)
+	    bufferDistm = 20;
+	exports.markAreasRaw(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly);
+    };
+    
+    exports.markAreasRaw = function(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly) {
+	// var tags={}
+	// tags[key]=value;	
+	console.clear();
+	var date = new Date();
+	console.println("Start: "+date);
+	console.println("Hello, calculating..");	
+	var distance = distancem / 6371e3 / rad;
+	console.println("distance = "+distancem+" = "+distance + " deg lat");	
+	var layer = current_layer(layers); 
+	if(checkValidSelection(layers)==true){findOneClusterOnly=true;}
+	else{findOneClusterOnly=false;}
+	var buildings = getBuildings(layer, useFirstNodeOnly); //Find subset of buildings
+	console.println("Number of nodes: " + buildings.numNodes);
+	console.println("Number of node-buildings: " + buildings.numNodeBuildings);
+	console.println("Number of ways: " + buildings.numWays );
+	console.println("Number of areas: " + buildings.numAreas);
+	console.println("Number of area-buildings: " + buildings.numBuildings);
+	console.println("Number of residential areas: " + buildings.numResidential);
+	console.println("Number of nodes used in clustering: " + buildings.numAllNodes);
+	var layerNew = addLayer(layerName);
+	//TODO: We should allow anything here - just need to deal with the degenerate cases below.
+	// Moved up: // if (minNumBldgInResArea<3) { minNumBldgInResArea=3; }
+	var cluster = dbAndGrahamScan(buildings.allNodes,distance,minNumBldgInResArea,tags,layerNew,bufferDistm);
+	//var areasNew = countObjects(layerNew,"true"); 
+	//console.println("Number of residential areas in new layer: " + areasNew.numAreas );	
+	var date2 = new Date();
+	var diff = date2-date;
+	console.println("End: "+date2);
+	var perobj = "-";
+	var nObjects = buildings.numBuildings + buildings.numNodeBuildings;;
+	if (nObjects > 0) {
+	    perobj = Math.round(diff / nObjects * 10)/10;
+	};
+	diff = Math.round(diff/1000);
+	console.println("time="+diff+" s, "+perobj+" ms per object. Select next node");
+	
+	console.println("Done!");
+    };
+
+    function current_layer(layers) {
+	console.println("Active layer is " + layers.activeLayer.name)
+	return layers.activeLayer;
+    }
 
     function getBuildings(layer,useFirstNodeOnly,buffer) {
 	if (!buffer)
@@ -99,15 +169,15 @@ June 2017
 	var nodesinBuilding=[];
 	var allNodes=[];
 	var numAllNodes=0;
-	var nbs=[];	
-	if(dataset.selection.objects[0].type=="way")
-	nbs=dataset.selection.objects[0].firstNode()
-	else
-	nbs=dataset.selection.objects[0]
-	console.println("Finding a cluster around node: "+nbs);
-	if(nbs.objects!=undefined)
-	{allNodes[numAllNodes]=[nbs.lat,  nbs.lon];
-	numAllNodes++;	}
+	if(findOneClusterOnly==true)
+	{	var nbs=[];	
+		if(dataset.selection.objects[0].type=="way")
+		{nbs=dataset.selection.objects[0].firstNode();}
+		else
+		{nbs=dataset.selection.objects[0];}
+		console.println("Finding a cluster around node: "+nbs);
+		allNodes[numAllNodes]=[nbs.lat,  nbs.lon];	numAllNodes++;	
+	}
 	for (j = 0; j < numWays; j++)
 	{
 	    var way = result[j];
@@ -125,7 +195,7 @@ June 2017
 		      The offset algorithm notices these straight segments, and a possible solution is to add both points (lef/right of the segment) and then run the hull algrithm again on those points.
 		     */
 // Could consider input buffering, which would double the number of nodes.
-	            if(useFirstNodeOnly=="true") {
+	        if(useFirstNodeOnly==true) {
 			allNodes[numAllNodes]=[result[j].firstNode().lat,  result[j].firstNode().lon];
 			numAllNodes++;
 		    } else {
@@ -166,72 +236,6 @@ June 2017
 	    numAllNodes:numAllNodes
 	};
     };
-	
-    exports.markAreas = function(distancem, minNumBldgInResArea, bufferDistm, layerName, key, value, useFirstNodeOnly) {
-	if (!distancem)
-	    distancem = 150;
-	if (!minNumBldgInResArea)
-	    minNumBldgInResArea = 3;	
-	if (minNumBldgInResArea<3) { minNumBldgInResArea=3; }
-	if (!layerName)
-	    layerName = "ResAreaLayer";
-	if (!key)
-	    key = "landuse";
-	if (!value)
-	    value = "residential";
-	var tags = {};
-	tags[key]=value;
-	if (!useFirstNodeOnly)
-	    useFirstNodeOnly = false;
-	if (!bufferDistm)
-	    bufferDistm = 20;
-	if(checkValidSelection(layers)==true){exports.markAreasRaw(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly);}
-    };
-    
-    exports.markAreasRaw = function(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly) {
-	// var tags={}
-	// tags[key]=value;	
-	console.clear();
-	var date = new Date();
-	console.println("Start: "+date);
-	console.println("Hello, calculating..");	
-	var distance = distancem / 6371e3 / rad;
-	console.println("distance = "+distancem+" = "+distance + " deg lat");	
-	var layer = current_layer(layers); 
-	var buildings = getBuildings(layer, useFirstNodeOnly); //Find subset of buildings
-	console.println("Number of nodes: " + buildings.numNodes);
-	console.println("Number of node-buildings: " + buildings.numNodeBuildings);
-	console.println("Number of ways: " + buildings.numWays );
-	console.println("Number of areas: " + buildings.numAreas);
-	console.println("Number of area-buildings: " + buildings.numBuildings);
-	console.println("Number of residential areas: " + buildings.numResidential);
-	console.println("Number of nodes used in clustering: " + buildings.numAllNodes);
-	var layerNew = addLayer(layerName);
-	//TODO: We should allow anything here - just need to deal with the degenerate cases below.
-	// Moved up: // if (minNumBldgInResArea<3) { minNumBldgInResArea=3; }
-	var cluster = dbAndGrahamScan(buildings.allNodes,distance,minNumBldgInResArea,tags,layerNew,bufferDistm);
-	//var areasNew = countObjects(layerNew,"true"); 
-	//console.println("Number of residential areas in new layer: " + areasNew.numAreas );	
-	var date2 = new Date();
-	var diff = date2-date;
-	console.println("End: "+date2);
-	var perobj = "-";
-	var nObjects = buildings.numBuildings + buildings.numNodeBuildings;;
-	if (nObjects > 0) {
-	    perobj = Math.round(diff / nObjects * 10)/10;
-	};
-	diff = Math.round(diff/1000);
-	console.println("time="+diff+" s, "+perobj+" ms per object. Select next node");
-	
-	console.println("Done!");
-    };
-
-    function current_layer(layers) {
-	console.println("Active layer is " + layers.activeLayer.name)
-	return layers.activeLayer;
-    }
-
-
     function dbAndGrahamScan(dataset,distance,minNumBldgInResArea,tagName,layer,bufferDistm) { 
 
 	const DBSCAN = require("JOSM-Scripts-HOT/lib/DBSCAN_1cluster.js");
@@ -243,7 +247,7 @@ June 2017
 	var dbscan = new DBSCAN();
 
 	//TODO: minNumBldgInResArea doesn't quite work here - because if you work on 'all nodes' minNumBldgInResArea is compared to all nodes, rather than buildings.
-	var clusters = dbscan.run(dataset, distance, minNumBldgInResArea); 
+	var clusters = dbscan.run(dataset, distance, minNumBldgInResArea,findOneClusterOnly); 
 	console.println("Total number of clusters found: " + clusters.length); 
 
 	//console.println("graham scan");
