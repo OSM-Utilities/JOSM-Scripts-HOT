@@ -40,68 +40,53 @@ June 2017
     var geoutils = require("JOSM-Scripts-HOT/lib/geoutils.js");
     var utils = require("JOSM-Scripts-HOT/lib/utils.js");
     const rad = Math.PI/180;
-    // Shared vars
+// Shared vars
     var hasMenu = false;
-<<<<<<< HEAD
 	var defaultdist=300;
 	var findOneClusterOnly=false;
 	
-=======
-    var defaultdist=150;
-    
->>>>>>> fad37c233737cc71a39a62f58e9a1c7cd5159f68
     exports.initMarkResAreas = function() {
 	console.clear();
 	if (!hasMenu) {
 	    addMenuItems();
 	    //hasMenu = true;
-	    console.println("Added menu items in Edit. You can add them to the toolbar using preferences.");
+		console.println("Added menu items in Edit. You can add them to the toolbar using preferences.");
 	} else {
-	    console.println("Menu already added in Toolbar>Edit.");
+	    console.println("Menu already added in Toolbar>Edit");
 	};	
     };
     
-    function addMenuItems() {
+	function addMenuItems() {
 	utils.addMenuItem("increment distance by 50m","increment distance by 50m", 
-			  (function(){ 
-			      defaultdist=defaultdist+50; if(defaultdist>=500){defaultdist=500;} josm.alert("The new distance setting is: " + defaultdist);
-			      exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
+		(function(){ 
+			defaultdist=defaultdist+50; if(defaultdist>=500){defaultdist=500;} josm.alert("The new distance setting is: " + defaultdist);
+			exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
 	utils.addMenuItem("decrement distance by 50m","increment distance by 50m", 
-			  (function(){
-			      defaultdist=defaultdist-50; if(defaultdist<=50){defaultdist=50;} josm.alert("The new distance setting is: " + defaultdist);	
-			      exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
+		(function(){
+			defaultdist=defaultdist-50; if(defaultdist<=50){defaultdist=50;} josm.alert("The new distance setting is: " + defaultdist);	
+			exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
 	utils.addMenuItem("Distance 100m, no minimum of nodes","Distance 100m, no minimum of nodes",
-			  (function(){ exports.markAreas(100, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+		(function(){ exports.markAreas(100, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
 	utils.addMenuItem("Distance 100m, min 10 nodes","Distance 100m, min 10 nodes",
-			  (function(){ exports.markAreas(100, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	utils.addMenuItem("Distance 150m, no minimum of nodes","Distance 150m, no minimum of nodes",
-			  (function(){ exports.markAreas(150, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	utils.addMenuItem("Distance 150m, min 10 nodes","Distance 150m, min 10 nodes",
-			  (function(){ exports.markAreas(150, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	utils.addMenuItem("Distance 200m, no minimum of nodes","Distance 200m, no minimum of nodes",
-			  (function(){ exports.markAreas(200, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	utils.addMenuItem("Distance 200m, min 10 nodes","Distance 200m, min 10 nodes",
-			  (function(){ exports.markAreas(200, 10, 20, "ResAreaLayer", "landuse", "residential", false); }) );
-	return hasMenu = true;
-    };
+		(function(){ exports.markAreas(100, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	utils.addMenuItem("Distance 500m, no minimum of nodes","Distance 500m, no minimum of nodes",
+		(function(){ exports.markAreas(500, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	utils.addMenuItem("Distance 500m, min 10 nodes","Distance 500m, min 10 nodes",
+		(function(){ exports.markAreas(500, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	utils.addMenuItem("Distance 1000m, no minimum of nodes","Distance 1000m, no minimum of nodes",
+		(function(){ exports.markAreas(1000, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	utils.addMenuItem("Distance 1000m, min 10 nodes","Distance 1000m, min 10 nodes",
+		(function(){ exports.markAreas(1000, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+    return hasMenu = true;
+	};
 
-    function checkValidSelection(layers){
-	var layer = current_layer(layers);
+	function checkValidSelection(layers){
+	var layer=current_layer(layers)
 	var dataset = layer.data;	
-<<<<<<< HEAD
 	if (dataset.selection.objects[0]==undefined){isValid="false";	josm.alert("Clustering entire area. This can take a while. If you are interested in marking residential areas around a point, select a node/way and rerun");}
 	else{isValid=true;}
 	return isValid;
-=======
-	if (dataset.selection.objects[0]==undefined) {
-	    isValid = false;
-	    josm.alert("Please select a node or building and try again.");
-	} else {
-	    isValid = true;
->>>>>>> fad37c233737cc71a39a62f58e9a1c7cd5159f68
 	}
-	return isValid;
-    }
 
     exports.markAreas = function(distancem, minNumBldgInResArea, bufferDistm, layerName, key, value, useFirstNodeOnly) {
 	if (!distancem)
@@ -184,7 +169,6 @@ June 2017
 	var nodesinBuilding=[];
 	var allNodes=[];
 	var numAllNodes=0;
-<<<<<<< HEAD
 	if(findOneClusterOnly==true)
 	{	var nbs=[];	
 		if(dataset.selection.objects[0].type=="way")
@@ -193,17 +177,6 @@ June 2017
 		{nbs=dataset.selection.objects[0];}
 		console.println("Finding a cluster around node: "+nbs);
 		allNodes[numAllNodes]=[nbs.lat,  nbs.lon];	numAllNodes++;	
-=======
-	var nbs=[];	
-	if(dataset.selection.objects[0].type=="way")
-	    nbs=dataset.selection.objects[0].firstNode()
-	else
-	    nbs=dataset.selection.objects[0];
-	console.println("Finding a cluster around node: " + nbs);
-	if(nbs.objects!=undefined) {
-	    allNodes[numAllNodes]=[nbs.lat,  nbs.lon];
-	    numAllNodes++;
->>>>>>> fad37c233737cc71a39a62f58e9a1c7cd5159f68
 	}
 	for (j = 0; j < numWays; j++)
 	{
@@ -214,7 +187,6 @@ June 2017
 		var type = way.tags.building;
 		if(type)
 		{  
-<<<<<<< HEAD
 		    /*
 		      TODO: The are some 'degenerate' cases.
 		      E.g. three node buildings on one line
@@ -224,9 +196,6 @@ June 2017
 		     */
 // Could consider input buffering, which would double the number of nodes.
 	        if(useFirstNodeOnly==true) {
-=======
-	            if(useFirstNodeOnly=="true") {
->>>>>>> fad37c233737cc71a39a62f58e9a1c7cd5159f68
 			allNodes[numAllNodes]=[result[j].firstNode().lat,  result[j].firstNode().lon];
 			numAllNodes++;
 		    } else {
@@ -252,20 +221,8 @@ June 2017
 	for (j = 0; j < numNodes; j++) {
 	    var node = result[j];
 	    if (node.tags.building) {
-		/*
-		  TODO: The are some 'degenerate' cases.
-		  E.g. three node buildings on one line
-		  The offset agorithm will still work, but because the objects don't 'span a plane', they will end up on the boundary of the area.
-		  At this point add input buffering for node-buildings.
-		*/
-		var inputBuffer = false;
-		if (inputBuffer) {
-		    console.log("Input buffer not implemented.");
-		} else {
-		    allNodes[numAllNodes]=[node.lat, node.lon]; 
-		    numNodeBuildings++;
-		    numAllNodes++;
-		};
+		allNodes[numAllNodes]=[node.lat, node.lon]; 
+		numNodeBuildings++; numAllNodes++;
 	    };
 	};	
 	return{ 
@@ -279,75 +236,6 @@ June 2017
 	    numAllNodes:numAllNodes
 	};
     };
-<<<<<<< HEAD
-=======
-    
-    exports.markAreas = function(distancem, minNumBldgInResArea, bufferDistm, layerName, key, value, useFirstNodeOnly) {
-	if (!distancem)
-	    distancem = 150;
-	if (!minNumBldgInResArea)
-	    minNumBldgInResArea = 3;	
-	if (minNumBldgInResArea<3) { minNumBldgInResArea=3; }
-	if (!layerName)
-	    layerName = "ResAreaLayer";
-	if (!key)
-	    key = "landuse";
-	if (!value)
-	    value = "residential";
-	var tags = {};
-	tags[key]=value;
-	if (!useFirstNodeOnly)
-	    useFirstNodeOnly = false;
-	if (!bufferDistm)
-	    bufferDistm = 20;
-	if(checkValidSelection(layers)==true){exports.markAreasRaw(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly);}
-    };
-    
-    exports.markAreasRaw = function(distancem, minNumBldgInResArea, bufferDistm, layerName, tags, useFirstNodeOnly) {
-	// var tags={}
-	// tags[key]=value;	
-	console.clear();
-	var date = new Date();
-	console.println("Start: "+date);
-	console.println("Hello, calculating..");	
-	var distance = distancem / 6371e3 / rad;
-	console.println("distance = "+distancem+" = "+distance + " deg lat");	
-	var layer = current_layer(layers); 
-	var buildings = getBuildings(layer, useFirstNodeOnly); //Find subset of buildings
-	console.println("Number of nodes: " + buildings.numNodes);
-	console.println("Number of node-buildings: " + buildings.numNodeBuildings);
-	console.println("Number of ways: " + buildings.numWays );
-	console.println("Number of areas: " + buildings.numAreas);
-	console.println("Number of area-buildings: " + buildings.numBuildings);
-	console.println("Number of residential areas: " + buildings.numResidential);
-	console.println("Number of nodes used in clustering: " + buildings.numAllNodes);
-	var layerNew = addLayer(layerName);
-	//TODO: We should allow anything here - just need to deal with the degenerate cases below.
-	// Moved up: // if (minNumBldgInResArea<3) { minNumBldgInResArea=3; }
-	var cluster = dbAndGrahamScan(buildings.allNodes,distance,minNumBldgInResArea,tags,layerNew,bufferDistm);
-	//var areasNew = countObjects(layerNew,"true"); 
-	//console.println("Number of residential areas in new layer: " + areasNew.numAreas );	
-	var date2 = new Date();
-	var diff = date2-date;
-	console.println("End: "+date2);
-	var perobj = "-";
-	var nObjects = buildings.numBuildings + buildings.numNodeBuildings;;
-	if (nObjects > 0) {
-	    perobj = Math.round(diff / nObjects * 10)/10;
-	};
-	diff = Math.round(diff/1000);
-	console.println("time="+diff+" s, "+perobj+" ms per object. Select next node");
-	
-	console.println("Done!");
-    };
-
-    function current_layer(layers) {
-	console.println("Active layer is " + layers.activeLayer.name)
-	return layers.activeLayer;
-    }
-
-
->>>>>>> fad37c233737cc71a39a62f58e9a1c7cd5159f68
     function dbAndGrahamScan(dataset,distance,minNumBldgInResArea,tagName,layer,bufferDistm) { 
 
 	const DBSCAN = require("JOSM-Scripts-HOT/lib/DBSCAN_1cluster.js");
@@ -424,7 +312,7 @@ June 2017
 	command.add(nodeVecIn).applyTo(layer)
 	command.add(w2).applyTo(layer)
     };		
-    
+        
 }());
 
 
