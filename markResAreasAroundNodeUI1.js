@@ -1,33 +1,33 @@
 /*
-markResAreasAroundNode.js 
+  markResAreasAroundNode.js 
 
-This script (intended for the JOSM scripting plugin) clusters buildings
-in active layer in JOSM, and adds residential areas to new layer.
+  This script (intended for the JOSM scripting plugin) clusters buildings
+  in active layer in JOSM, and adds residential areas to new layer.
 
-Run like this:
-var a= require("JOSM-Scripts-HOT/markResAreasAroundNodeUI1.js");
-a.initMarkResAreas(); // Needs to be run only once after startup of JOSM. 
-Then use preset settings from Toolbar> Edit>  Distance 100m, min 10 nodes....
+  Run like this:
+  var a= require("JOSM-Scripts-HOT/markResAreasAroundNodeUI1.js");
+  a.initMarkResAreas(); // Needs to be run only once after startup of JOSM. 
+  Then use preset settings from Toolbar> Edit>  Distance 100m, min 10 nodes....
 
-Description: If a node or way is selected, a cluster is formed around selected point. 
-If nothing is selected. Clustering is performed on the entire downloaded area. 
+  Description: If a node or way is selected, a cluster is formed around selected point. 
+  If nothing is selected. Clustering is performed on the entire downloaded area. 
 
-Option 1: For adjustable settings
-    var a= require("JOSM-Scripts-HOT/markResAreasAroundNodeUI1.js");
-    a.markAreas(300, 3, 20, "ResAreaLayer", "landuse", "residential", false); 
-	
-// Format for markAreas(distance between buildings in metres, 
-            min number of nodes in a residential area, 
-			buffer distance around the cluster of buildings
-            layerName, 
-            tagKey "landuse", 
-            tagValue "residential", 
-            Use only first node for clustering "true"/ "false", 
-            ); 
-	
-gyslerc, Bjoern Hassler (http://bjohas.de)
-https://github.com/OSM-Utilities/JOSM-Scripts-HOT
-June 2017
+  Option 1: For adjustable settings
+  var a= require("JOSM-Scripts-HOT/markResAreasAroundNodeUI1.js");
+  a.markAreas(300, 3, 20, "ResAreaLayer", "landuse", "residential", false); 
+  
+  // Format for markAreas(distance between buildings in metres, 
+  min number of nodes in a residential area, 
+  buffer distance around the cluster of buildings
+  layerName, 
+  tagKey "landuse", 
+  tagValue "residential", 
+  Use only first node for clustering "true"/ "false", 
+  ); 
+  
+  gyslerc, Bjoern Hassler (http://bjohas.de)
+  https://github.com/OSM-Utilities/JOSM-Scripts-HOT
+  June 2017
 
 */
 (function() {
@@ -40,53 +40,53 @@ June 2017
     var geoutils = require("JOSM-Scripts-HOT/lib/geoutils.js");
     var utils = require("JOSM-Scripts-HOT/lib/utils.js");
     const rad = Math.PI/180;
-// Shared vars
+    // Shared vars
     var hasMenu = false;
-	var defaultdist=150;
-	var findOneClusterOnly=false;
-	
+    var defaultdist=150;
+    var findOneClusterOnly=false;
+    
     exports.initMarkResAreas = function() {
 	console.clear();
 	if (!hasMenu) {
 	    addMenuItems();
 	    //hasMenu = true;
-		console.println("Added menu items in Edit. You can add them to the toolbar using preferences.");
+	    console.println("Added menu items in Edit. You can add them to the toolbar using preferences.");
 	} else {
 	    console.println("Menu already added in Toolbar>Edit");
 	};	
     };
     
-	function addMenuItems() {
+    function addMenuItems() {
 	utils.addMenuItem("increment distance by 50m","increment distance by 50m", 
-		(function(){ 
-			defaultdist=defaultdist+50; if(defaultdist>=500){defaultdist=500;} josm.alert("The new distance setting is: " + defaultdist);
-			exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
+			  (function(){ 
+			      defaultdist=defaultdist+50; if(defaultdist>=500){defaultdist=500;} josm.alert("The new distance setting is: " + defaultdist);
+			      exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
 	utils.addMenuItem("decrement distance by 50m","increment distance by 50m", 
 			  (function(){
 			      defaultdist=defaultdist-50; if(defaultdist<=50){defaultdist=50;} josm.alert("The new distance setting is: " + defaultdist);	
 			      exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
-	    utils.addMenuItem("Distance 100m, no minimum of nodes","Distance 100m, no minimum of nodes",
-			      (function(){ exports.markAreas(100, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	    utils.addMenuItem("Distance 100m, min 10 nodes","Distance 100m, min 10 nodes",
-			      (function(){ exports.markAreas(100, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	    utils.addMenuItem("Distance 150m, no minimum of nodes","Distance 150m, no minimum of nodes",
-			      (function(){ exports.markAreas(150, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	    utils.addMenuItem("Distance 150m, min 10 nodes","Distance 150m, min 10 nodes",
-			      (function(){ exports.markAreas(150, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	    utils.addMenuItem("Distance 200m, no minimum of nodes","Distance 200m, no minimum of nodes",
-			      (function(){ exports.markAreas(200, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	    utils.addMenuItem("Distance 200m, min 10 nodes","Distance 200m, min 10 nodes",
-			      (function(){ exports.markAreas(200, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	    return hasMenu = true;
-	};
+	utils.addMenuItem("Distance 100m, no minimum of nodes","Distance 100m, no minimum of nodes",
+			  (function(){ exports.markAreas(100, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	utils.addMenuItem("Distance 100m, min 10 nodes","Distance 100m, min 10 nodes",
+			  (function(){ exports.markAreas(100, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	utils.addMenuItem("Distance 150m, no minimum of nodes","Distance 150m, no minimum of nodes",
+			  (function(){ exports.markAreas(150, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	utils.addMenuItem("Distance 150m, min 10 nodes","Distance 150m, min 10 nodes",
+			  (function(){ exports.markAreas(150, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	utils.addMenuItem("Distance 200m, no minimum of nodes","Distance 200m, no minimum of nodes",
+			  (function(){ exports.markAreas(200, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	utils.addMenuItem("Distance 200m, min 10 nodes","Distance 200m, min 10 nodes",
+			  (function(){ exports.markAreas(200, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	return hasMenu = true;
+    };
 
-	function checkValidSelection(layers){
+    function checkValidSelection(layers){
 	var layer=current_layer(layers)
 	var dataset = layer.data;	
 	if (dataset.selection.objects[0]==undefined){isValid="false";	josm.alert("Clustering entire area. This can take a while. If you are interested in marking residential areas around a point, select a node/way and rerun");}
 	else{isValid=true;}
 	return isValid;
-	}
+    }
 
     exports.markAreas = function(distancem, minNumBldgInResArea, bufferDistm, layerName, key, value, useFirstNodeOnly) {
 	if (!distancem)
@@ -193,9 +193,9 @@ June 2017
 		      E.g. a building with a large side length (compared to clustering length), and several points down the side on one line
 		      The offset agorithm will still work, but because the objects don't 'span a plane', they will end up on the boundary of the area.
 		      The offset algorithm notices these straight segments, and a possible solution is to add both points (lef/right of the segment) and then run the hull algrithm again on those points.
-		     */
-// Could consider input buffering, which would double the number of nodes.
-	        if(useFirstNodeOnly==true) {
+		    */
+		    // Could consider input buffering, which would double the number of nodes.
+	            if(useFirstNodeOnly==true) {
 			allNodes[numAllNodes]=[result[j].firstNode().lat,  result[j].firstNode().lon];
 			numAllNodes++;
 		    } else {
@@ -318,7 +318,7 @@ June 2017
 	command.add(nodeVecIn).applyTo(layer)
 	command.add(w2).applyTo(layer)
     };		
-        
+    
 }());
 
 
