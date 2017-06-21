@@ -42,7 +42,7 @@ June 2017
     const rad = Math.PI/180;
 // Shared vars
     var hasMenu = false;
-	var defaultdist=300;
+	var defaultdist=150;
 	var findOneClusterOnly=false;
 	
     exports.initMarkResAreas = function() {
@@ -62,22 +62,22 @@ June 2017
 			defaultdist=defaultdist+50; if(defaultdist>=500){defaultdist=500;} josm.alert("The new distance setting is: " + defaultdist);
 			exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
 	utils.addMenuItem("decrement distance by 50m","increment distance by 50m", 
-		(function(){
-			defaultdist=defaultdist-50; if(defaultdist<=50){defaultdist=50;} josm.alert("The new distance setting is: " + defaultdist);	
-			exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
-	utils.addMenuItem("Distance 100m, no minimum of nodes","Distance 100m, no minimum of nodes",
-		(function(){ exports.markAreas(100, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	utils.addMenuItem("Distance 100m, min 10 nodes","Distance 100m, min 10 nodes",
-		(function(){ exports.markAreas(100, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	utils.addMenuItem("Distance 500m, no minimum of nodes","Distance 500m, no minimum of nodes",
-		(function(){ exports.markAreas(500, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	utils.addMenuItem("Distance 500m, min 10 nodes","Distance 500m, min 10 nodes",
-		(function(){ exports.markAreas(500, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	utils.addMenuItem("Distance 1000m, no minimum of nodes","Distance 1000m, no minimum of nodes",
-		(function(){ exports.markAreas(1000, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-	utils.addMenuItem("Distance 1000m, min 10 nodes","Distance 1000m, min 10 nodes",
-		(function(){ exports.markAreas(1000, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
-    return hasMenu = true;
+			  (function(){
+			      defaultdist=defaultdist-50; if(defaultdist<=50){defaultdist=50;} josm.alert("The new distance setting is: " + defaultdist);	
+			      exports.markAreas(defaultdist, 3, 20, "ResAreaLayer", "landuse", "residential", false); })  );
+	    utils.addMenuItem("Distance 100m, no minimum of nodes","Distance 100m, no minimum of nodes",
+			      (function(){ exports.markAreas(100, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	    utils.addMenuItem("Distance 100m, min 10 nodes","Distance 100m, min 10 nodes",
+			      (function(){ exports.markAreas(100, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	    utils.addMenuItem("Distance 150m, no minimum of nodes","Distance 150m, no minimum of nodes",
+			      (function(){ exports.markAreas(150, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	    utils.addMenuItem("Distance 150m, min 10 nodes","Distance 150m, min 10 nodes",
+			      (function(){ exports.markAreas(150, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	    utils.addMenuItem("Distance 200m, no minimum of nodes","Distance 200m, no minimum of nodes",
+			      (function(){ exports.markAreas(200, 3, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	    utils.addMenuItem("Distance 200m, min 10 nodes","Distance 200m, min 10 nodes",
+			      (function(){ exports.markAreas(200, 10, 20, "ResAreaLayer", "landuse", "residential", false);	}) );
+	    return hasMenu = true;
 	};
 
 	function checkValidSelection(layers){
@@ -221,6 +221,12 @@ June 2017
 	for (j = 0; j < numNodes; j++) {
 	    var node = result[j];
 	    if (node.tags.building) {
+		/* 
+		   -  TODO: The are some 'degenerate' cases.
+		   -  E.g. three node buildings on one line
+		   -  The offset agorithm will still work, but because the objects don't 'span a plane', they will end up on the boundary of the area.
+		   -  At this point add input buffering for node-buildings.
+		*/
 		allNodes[numAllNodes]=[node.lat, node.lon]; 
 		numNodeBuildings++; numAllNodes++;
 	    };
