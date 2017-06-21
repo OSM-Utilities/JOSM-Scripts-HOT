@@ -83,8 +83,12 @@
     function checkValidSelection(layers){
 	var layer=current_layer(layers)
 	var dataset = layer.data;	
-	if (dataset.selection.objects[0]==undefined){isValid="false";	josm.alert("Clustering entire area. This can take a while. If you are interested in marking residential areas around a point, select a node/way and rerun");}
-	else{isValid=true;}
+	if (dataset.selection.objects[0]==undefined) {
+	    isValid=false;
+	    josm.alert("Clustering entire area. This can take a while. If you are interested in marking residential areas around a point, select a node/way and rerun");}
+	else {
+	    isValid=true;
+	}
 	return isValid;
     }
 
@@ -119,8 +123,11 @@
 	var distance = distancem / 6371e3 / rad;
 	console.println("distance = "+distancem+" = "+distance + " deg lat");	
 	var layer = current_layer(layers); 
-	if(checkValidSelection(layers)==true){findOneClusterOnly=true;}
-	else{findOneClusterOnly=false;}
+	if (checkValidSelection(layers)==true) {
+	    findOneClusterOnly=true;
+	} else{
+	    findOneClusterOnly=false;
+	}
 	var buildings = getBuildings(layer, useFirstNodeOnly); //Find subset of buildings
 	console.println("Number of nodes: " + buildings.numNodes);
 	console.println("Number of node-buildings: " + buildings.numNodeBuildings);
