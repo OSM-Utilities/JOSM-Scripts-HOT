@@ -1,0 +1,18 @@
+
+
+
+<html>
+  <head>
+<title>mmstats</title>
+
+  </head>
+<body>
+  <h1>mmstats</h1>
+<script src="../lib/mmstats.js"></script>
+<script>
+mmstats.run();
+</script>
+<address>
+</address>
+</body>
+</html>
