@@ -1,6 +1,4 @@
 
-
-
 <html>
   <head>
 <title>mmstats</title>
@@ -8,17 +6,45 @@
   </head>
 <body>
   <h1>mmstats</h1>
-<script src="../lib/mmstats.js"></script>
-<div id="output">
+  <script src="../lib/jquery.js"></script>
+  <script src="../lib/mmstats.js"></script>
+
+<div id="getInput"
+<p>Type in a user ID:</p>
+<input type="text" id="user" value="504708"> </br>
+<p>Type in hashtags:</p>
+<input type="text" id ="hashtags" value="mmcambridge, hotosm-project-3177" style="width:50%"> </br>
+<p>Type in a start time (format yyyy-mm-ddThh:mm:ssZ):</p>
+<input type="text" id ="sttime"  value="2017-06-15T17:00:00Z"> </br>
+<p>Type in an end time (format yyyy-mm-ddThh:mm:ssZ):</p>
+<input type="text" id="endtime" value="2017-06-15T21:00:00Z"> </br>
+</br>
+<input type="button" value="Submit" id="submit" >
 
 </div>
+
+<div id="output">
+</div>
+
 <script>
+  $(document).ready(function(){
+    $('#submit').click(function(){
+	   $('#getInput').hide();
+	   var user = document.getElementById("user").value;
+	   var hashtags = document.getElementById("hashtags").value;
+	   var array = hashtags.split(',');
+	   // Start and end time format to be improved, type="datetime"
+	   var sttime = document.getElementById("sttime").value;
+	   var endtime = document.getElementById("endtime").value;
+       consolelog("");
+	   analyse([user],array,sttime,endtime);
+    });
+  });
   function consolelog(string) {
   var e = document.getElementById("output");
   e.append(document.createTextNode(string) );
   e.append(document.createElement('br'));
   };
-  analyse([504708],["mmcambridge","hotosm-project-3177"],"2017-06-15T17:00:00Z","2017-06-15T21:00:00Z");
 </script>
 <address>
 </address>
