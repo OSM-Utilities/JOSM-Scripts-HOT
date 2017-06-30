@@ -207,7 +207,7 @@
 			numAllNodes++;
 		    } else {
 			nodesinBuilding=result[j].nodes; 
-			for(i=0; i<nodesinBuilding.length; i++){
+			for(i=0; i<nodesinBuilding.length-1; i++){
 			    allNodes[numAllNodes]=[nodesinBuilding[i].lat, nodesinBuilding[i].lon];  
 			    numAllNodes++;
 			}
