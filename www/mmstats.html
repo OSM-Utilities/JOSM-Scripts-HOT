@@ -9,19 +9,30 @@
   <script src="../lib/jquery.js"></script>
   <script src="../lib/mmstats.js"></script>
 
+
+
 <div id="getInput"
-<p>Type in a user ID:</p>
-<input type="text" id="user" value="504708"> </br>
 <p>Type in hashtags:</p>
-<input type="text" id ="hashtags" value="mmcambridge, hotosm-project-3177" style="width:50%"> </br>
-<p>Type in a start time (format yyyy-mm-ddThh:mm:ssZ):</p>
-<input type="text" id ="sttime"  value="2017-06-15T17:00:00Z"> </br>
-<p>Type in an end time (format yyyy-mm-ddThh:mm:ssZ):</p>
-<input type="text" id="endtime" value="2017-06-15T21:00:00Z"> </br>
+<input type="text" id ="hashtag" style="width:50%"> </br>
+<p>Type in a start time (format yyyy-mm-dd_hh:mm:ss):</p>
+<input type="text" id ="from"  value=""> </br>
+<p>Type in an end time (format yyyy-mm-dd_hh:mm:ss):</p>
+<input type="text" id="to" value=""> </br>
+<p>Type in a user ID:</p>
+<input type="text" id="user" value=""> </br>
 </br>
 <input type="button" value="Submit" id="submit" >
-
 </div>
+
+<script>
+    var parsed = getUrlVars();
+	var parameters = ["hashtag","from","to","user"]; 
+	for (var i = 0; i < parameters.length; i++) {
+        if (parsed[parameters[i]] != undefined){
+		    document.getElementById(parameters[i]).value = parsed[parameters[i]];
+		}
+    }
+</script>
 
 <div id="output">
 </div>
@@ -31,13 +42,17 @@
     $('#submit').click(function(){
 	   $('#getInput').hide();
 	   var user = document.getElementById("user").value;
-	   var hashtags = document.getElementById("hashtags").value;
-	   var array = hashtags.split(',');
+	   var hashtag = document.getElementById("hashtag").value;
+	   var array = hashtag.split(',');
 	   // Start and end time format to be improved, type="datetime"
-	   var sttime = document.getElementById("sttime").value;
-	   var endtime = document.getElementById("endtime").value;
+	   var from = document.getElementById("from").value;
+	   var to = document.getElementById("to").value;
+	   from = from.split("_");
+	   to = to.split("_");
+	   from = from[0] + "T" + from[1] + "Z";
+	   to = to[0] + "T" + to[1] + "Z";
        consolelog("");
-	   analyse([user],array,sttime,endtime);
+	   analyse([user],array,from,to);
     });
   });
   function consolelog(string) {
@@ -45,7 +60,9 @@
   e.append(document.createTextNode(string) );
   e.append(document.createElement('br'));
   };
+
 </script>
+
 <address>
 </address>
 </body>
