@@ -7,12 +7,14 @@ The main scripts are:
 - markResAreas.js 
 - addOLC.js
 - nodeBuilding2Way.js
+- www/mmstats.html
 
-Third-party utilities (in lib/ folder):
+Third-party / our utilities (in lib/ folder):
 - DBSCAN.js
 - graham_scan.js
 - openlocationcode.js
 - geoutils.js
+- mmstats.js
 
 Some examples of javascript code for the scripting plugin can be found in the examples/ folder.
 
