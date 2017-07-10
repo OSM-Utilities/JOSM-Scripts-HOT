@@ -9,8 +9,6 @@
   <script src="../lib/jquery.js"></script>
   <script src="../lib/mmstats.js"></script>
 
-
-
 <div id="getInput"
 <p>Type in hashtags:</p>
 <input type="text" id ="hashtag" style="width:50%"> </br>
@@ -21,7 +19,14 @@
 <p>Type in a user ID:</p>
 <input type="text" id="user" value=""> </br>
 </br>
+
 <input type="button" value="Submit" id="submit" >
+<input type="button" value="Bookmark this query" id="query" >
+</div>
+
+<a id="link" style="display: none;" target="_blank"> Link </a>
+
+<div id="output">
 </div>
 
 <script>
@@ -32,19 +37,12 @@
 		    document.getElementById(parameters[i]).value = parsed[parameters[i]];
 		}
     }
-</script>
 
-<div id="output">
-</div>
-
-<script>
   $(document).ready(function(){
     $('#submit').click(function(){
-	   $('#getInput').hide();
 	   var user = document.getElementById("user").value;
 	   var hashtag = document.getElementById("hashtag").value;
 	   var array = hashtag.split(',');
-	   // Start and end time format to be improved, type="datetime"
 	   var from = document.getElementById("from").value;
 	   var to = document.getElementById("to").value;
 	   from = from.split("_");
@@ -55,6 +53,20 @@
 	   analyse([user],array,from,to);
     });
   });
+  
+  $(document).ready(function()
+      {  
+        $("#query").click(function() {
+		var hashtag = document.getElementById("hashtag").value;
+		var from = document.getElementById("from").value;
+		var to = document.getElementById("to").value;
+		var user = document.getElementById("user").value;
+		var url = "mmstats.html?hashtag="+hashtag+"&from="+from+"&to="+to+"&user="+user;
+		document.getElementById("link").setAttribute("href",url);
+         $("#link").toggle()
+         });  
+       });      
+
   function consolelog(string) {
   var e = document.getElementById("output");
   e.append(document.createTextNode(string) );
