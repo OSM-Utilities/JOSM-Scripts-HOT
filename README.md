@@ -15,6 +15,7 @@ Third-party / our utilities (in lib/ folder):
 - openlocationcode.js
 - geoutils.js
 - mmstats.js
+- jquery.js
 
 Some examples of javascript code for the scripting plugin can be found in the examples/ folder.
 
