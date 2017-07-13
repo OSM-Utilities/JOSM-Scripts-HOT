@@ -10,10 +10,11 @@
   <script src="../lib/mmstats.js"></script>
 
 <div id="getInput"
-<p>Type in hashtags:</p>
+<p>Type in hashtags (omit #, comma-separated):</p>
 <input type="text" id ="hashtag" style="width:50%"> </br>
 <p>Type in a start time (format yyyy-mm-dd_hh:mm:ss):</p>
 <input type="text" id ="from"  value=""> </br>
+<!-- TODO: Would be great to have a "now" button -->
 <p>Type in an end time (format yyyy-mm-dd_hh:mm:ss):</p>
 <input type="text" id="to" value=""> </br>
 <p>Type in a user ID:</p>
@@ -48,9 +49,14 @@
 	   from = from.split("_");
 	   to = to.split("_");
 	   from = from[0] + "T" + from[1] + "Z";
-	   to = to[0] + "T" + to[1] + "Z";
-       consolelog("");
-	   analyse([user],array,from,to);
+			    to = to[0] + "T" + to[1] + "Z";
+			    var userarr = []; 
+			    if (user !== "") {
+//TODO - userarr needs to be set to array derived from user
+			    userarr = [user];
+			    };
+	   consolelog("");
+	   analyse(userarr,array,from,to);
     });
   });
   
