@@ -4,7 +4,7 @@ Bjoern Hassle, http://bjohas.de
 
 Run like this:
 
-var a= require("JOSM-Scripts-HOT/countObjects.js");
+var a= require("JOSM-Scripts-HOT/examples/countObjects.js");
 a.showStats();
 */
 (function() {
