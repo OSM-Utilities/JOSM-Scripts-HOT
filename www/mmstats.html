@@ -78,17 +78,13 @@
         $("#now").click(function() {
 		var currentdate = new Date();
 		currentdate.toISOString().substring(0, 10);
-		var datetime = currentdate.getDate() + "-" +(currentdate.getMonth()+1)
-		+ "-" + currentdate.getFullYear() + "_" + currentdate.getHours() + ":" 
-		+ currentdate.getMinutes() + ":" + currentdate.getSeconds();
+		var datetime = setCorrectTime(currentdate);
 		document.getElementById("from").value = datetime;
 		
 		var currentdate = new Date();
 		currentdate.setHours(currentdate.getHours() + 3);
 		currentdate.toISOString().substring(0, 10);
-		var datetime = currentdate.getDate() + "-" +(currentdate.getMonth()+1)
-		+ "-" + currentdate.getFullYear() + "_" + currentdate.getHours() + ":" 
-		+ currentdate.getMinutes() + ":" + currentdate.getSeconds();
+		var datetime = setCorrectTime(currentdate);
 		document.getElementById("to").value = datetime;
          });  
        });      
