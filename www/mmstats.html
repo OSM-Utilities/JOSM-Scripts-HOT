@@ -14,7 +14,7 @@
 <input type="text" id ="hashtag" style="width:50%"> </br>
 <p>Type in a start time (format yyyy-mm-dd_hh:mm:ss):</p>
 <input type="text" id ="from"  value=""> </br>
-<!-- TODO: Would be great to have a "now" button -->
+<input type="button" value="Now" id="now" >
 <p>Type in an end time (format yyyy-mm-dd_hh:mm:ss):</p>
 <input type="text" id="to" value=""> </br>
 <p>Type in a user ID:</p>
@@ -70,6 +70,22 @@
 		var url = "mmstats.html?hashtag="+hashtag+"&from="+from+"&to="+to+"&user="+user;
 		document.getElementById("link").setAttribute("href",url);
          $("#link").toggle()
+         });  
+       });   
+	   
+  $(document).ready(function()
+      {  
+        $("#now").click(function() {
+		var currentdate = new Date();
+		currentdate.toISOString().substring(0, 10);
+		var datetime = setCorrectTime(currentdate);
+		document.getElementById("from").value = datetime;
+		
+		var currentdate = new Date();
+		currentdate.setHours(currentdate.getHours() + 3);
+		currentdate.toISOString().substring(0, 10);
+		var datetime = setCorrectTime(currentdate);
+		document.getElementById("to").value = datetime;
          });  
        });      
 

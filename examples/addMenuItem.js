@@ -7,6 +7,7 @@
   gyslerc, Bjoern Hassler (http://bjohas.de)
   June 2017
 
+  paste this code directly in the scripting console. 
 */
 
 
