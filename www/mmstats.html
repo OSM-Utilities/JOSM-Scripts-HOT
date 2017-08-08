@@ -90,12 +90,24 @@
        });      
 
   function consolelog(string) {
-  var e = document.getElementById("output");
-  var out = string.replace(/\[(\S+)\]/gi, "<a href=\"www.openstreetmap.org/$1\">$1</a>");
-  // Instead of creating a text node, use the html...			    
-  e.append(document.createTextNode(out) );
-  e.append(document.createElement('br'));
-  };
+    var e = document.getElementById("output");
+    var regex = /(node\/|way\/|relation\/)/gi;
+    if ( regex.test(string) ){
+       var a = string.split(":");
+       e.append(document.createTextNode(a[0]));
+       e.append(document.createElement('br'));
+       var items = a[1].split(",");
+       for (var i = 0; i < items.length; i++) {
+           var it = items[i].match(/(node\/\d+|way\/\d+|relation\/\d+)/gi);
+           $("#output").append($('<a href="'+'http://www.openstreetmap.org/' + it + '/" target="_blank">'+ it +'</a>'));
+           e.append(document.createTextNode(" ") );
+       }
+    }
+    else{
+    e.append(document.createTextNode(string) );
+    };
+    e.append(document.createElement('br'));
+    };
 
 </script>
 
