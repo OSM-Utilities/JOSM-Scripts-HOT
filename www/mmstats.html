@@ -91,7 +91,9 @@
 
   function consolelog(string) {
   var e = document.getElementById("output");
-  e.append(document.createTextNode(string) );
+  var out = string.replace(/\[(\S+)\]/gi, "<a href=\"www.openstreetmap.org/$1\">$1</a>");
+  // Instead of creating a text node, use the html...			    
+  e.append(document.createTextNode(out) );
   e.append(document.createElement('br'));
   };
 
