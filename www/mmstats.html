@@ -20,7 +20,7 @@
 <p>Type in a user ID:</p>
 <input type="text" id="user" value=""> </br>
 </br>
-
+  <p>Check boxes for various options... run.... only show RC.... </p>
 <input type="button" value="Submit" id="submit" >
 <input type="button" value="Bookmark this query" id="query" >
 </div>
@@ -91,20 +91,29 @@
 
   function consolelog(string) {
     var e = document.getElementById("output");
-    var regex = /(node\/|way\/|relation\/)/gi;
+/*
+var regex = /(node\/|way\/|relation\/)/gi;
+if ( regex.test(string) ){
+var a = string.split(":");
+e.append(document.createTextNode(a[0]));
+e.append(document.createElement('br'));
+var items = a[1].split(",");
+for (var i = 0; i < items.length; i++) {
+	var it = items[i].match(/(node\/\d+|way\/\d+|relation\/\d+)/gi);
+	$("#output").append($('<a href="'+'http://www.openstreetmap.org/' + it + '/" target="_blank">'+ it +'</a>'));
+	e.append(document.createTextNode(" ") );
+	}
+}
+*/
+    var regex = /\[((user|node|way|relation)\/[^\]]+)\]/gi;
     if ( regex.test(string) ){
        var a = string.split(":");
-       e.append(document.createTextNode(a[0]));
-       e.append(document.createElement('br'));
-       var items = a[1].split(",");
-       for (var i = 0; i < items.length; i++) {
-           var it = items[i].match(/(node\/\d+|way\/\d+|relation\/\d+)/gi);
-           $("#output").append($('<a href="'+'http://www.openstreetmap.org/' + it + '/" target="_blank">'+ it +'</a>'));
-           e.append(document.createTextNode(" ") );
-       }
-    }
-    else{
-    e.append(document.createTextNode(string) );
+       var span = document.createElement('span');
+       string = string.replace(regex,"<a href=\"http://www.openstreetmap.org/$1\" target=\"_blank\">$1</a>");
+       span.innerHTML = string;
+       e.append(span);
+    } else{
+       e.append(document.createTextNode(string) );
     };
     e.append(document.createElement('br'));
     };
