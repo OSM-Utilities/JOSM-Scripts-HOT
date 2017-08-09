@@ -20,7 +20,9 @@
 <p>Type in a user ID:</p>
 <input type="text" id="user" value=""> </br>
 </br>
-  <p>Check boxes for various options... run.... only show RC.... </p>
+<input type="checkbox" id="rc" checked> RedCross user stats </br>
+<input type="checkbox" id="overpass"> Full query </br>
+</br>
 <input type="button" value="Submit" id="submit" >
 <input type="button" value="Bookmark this query" id="query" >
 </div>
@@ -55,8 +57,12 @@
 //TODO - userarr needs to be set to array derived from user
 			    userarr = [user];
 			    };
+           var response = document.getElementById("rc").checked;
+           var query = document.getElementById("overpass").checked;
 	   consolelog("");
-	   analyse(userarr,array,from,to);
+           consolelog(response);
+                      consolelog(query);
+	   analyse(userarr,array,from,to,response,query);
     });
   });
   
@@ -91,20 +97,6 @@
 
   function consolelog(string) {
     var e = document.getElementById("output");
-/*
-var regex = /(node\/|way\/|relation\/)/gi;
-if ( regex.test(string) ){
-var a = string.split(":");
-e.append(document.createTextNode(a[0]));
-e.append(document.createElement('br'));
-var items = a[1].split(",");
-for (var i = 0; i < items.length; i++) {
-	var it = items[i].match(/(node\/\d+|way\/\d+|relation\/\d+)/gi);
-	$("#output").append($('<a href="'+'http://www.openstreetmap.org/' + it + '/" target="_blank">'+ it +'</a>'));
-	e.append(document.createTextNode(" ") );
-	}
-}
-*/
     var regex = /\[((user|node|way|relation)\/[^\]]+)\]/gi;
     if ( regex.test(string) ){
        var a = string.split(":");
@@ -117,7 +109,26 @@ for (var i = 0; i < items.length; i++) {
     };
     e.append(document.createElement('br'));
     };
+  
+  function createTable(tableData) {
+    var table = document.createElement('table');
+    var tableBody = document.createElement('tbody');
 
+    tableData.forEach(function(rowData) {
+      var row = document.createElement('tr');
+
+      rowData.forEach(function(cellData) {
+        var cell = document.createElement('td');
+        cell.appendChild(document.createTextNode(cellData));
+        row.appendChild(cell);
+      });
+  
+      tableBody.appendChild(row);
+    });
+  
+    table.appendChild(tableBody);
+    document.body.appendChild(table);
+  }
 </script>
 
 <address>
