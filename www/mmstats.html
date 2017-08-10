@@ -11,24 +11,27 @@
 
 <div id="getInput"
 <p>Type in hashtags (omit #, comma-separated):</p>
-<input type="text" id ="hashtag" style="width:50%"> </br>
+<input type="text" id ="hashtag" style="width:50%"> <br/>
 <p>Type in a start time (format yyyy-mm-dd_hh:mm:ss):</p>
-<input type="text" id ="from"  value=""> </br>
+<input type="text" id ="from"  value=""> <br/>
 <input type="button" value="Now" id="now" >
 <p>Type in an end time (format yyyy-mm-dd_hh:mm:ss):</p>
-<input type="text" id="to" value=""> </br>
+<input type="text" id="to" value=""> <br/>
 <p>Type in a user ID:</p>
-<input type="text" id="user" value=""> </br>
-</br>
-<input type="checkbox" id="rc" checked>Show user stats from Red Cross API.</br>
-<input type="checkbox" id="overpass" checked>Run and show results of overpass query </br>
-<input type="checkbox" id="alwaysShowOPdetails">Always show details from overpass query, even if here are no errors for a particular user.</br>
-<input type="checkbox" id="showAPIqueries">Show the API queries</br>
-</br>
+<input type="text" id="user" value=""> <br/>
+<p>Tags used in project: (cannot be changed yet))</p>
+<i>building,highway,landuse,natural,waterway,railway,barrier,historic,amenity</i><br/>
+<!-- <input type="text" id="acceptedTags" value="building,highway,landuse,natural,waterway,railway,barrier,historic,amenity"> <br/> -->
+<br/>
+<input type="checkbox" id="rc" checked>Show user stats from Red Cross API.<br/>
+<input type="checkbox" id="overpass" checked>Run and show results of overpass query <br/>
+<input type="checkbox" id="alwaysShowOPdetails">Always show details from overpass query, even if here are no errors for a particular user.<br/>
+<input type="checkbox" id="showAPIqueries">Show the API queries<br/>
+<br/>
 <input type="button" value="Submit" id="submit" >
 <input type="button" value="Bookmark this query" id="query" >
 <input type="button" value="Bookmark this query (autorun)" id="queryRun" >
-</br>
+<br/>
 </div>
 
 <a id="link" style="display: none;" target="_blank"> Link </a>
