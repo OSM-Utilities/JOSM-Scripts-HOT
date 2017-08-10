@@ -22,8 +22,8 @@
 </br>
 <input type="checkbox" id="rc" checked>Show user stats from Red Cross API.</br>
 <input type="checkbox" id="overpass" checked>Run and show results of overpass query </br>
-<input type="checkbox" id="alwaysShowOPdetails">Always show details from overpass query, even if here are no errors.</br>
-<input type="checkbox" id="showAPIqueries">Show details of API queries.</br>
+<input type="checkbox" id="alwaysShowOPdetails">Always show details from overpass query, even if here are no errors for a particular user.</br>
+<input type="checkbox" id="showAPIqueries">Show the API queries</br>
 </br>
 <input type="button" value="Submit" id="submit" >
 <input type="button" value="Bookmark this query" id="query" >
@@ -102,13 +102,15 @@
   function consolelog(string) {
     var e = document.getElementById("output");
     var regex = /\[((user|node|way|relation)\/[^\]]+)\]/gi;
-    if ( regex.test(string) ){
-       var a = string.split(":");
+    var regex2 = /\[(http[^\] ]+) ([^\]]+)\]/gi;
+    if ( regex.test(string) || regex2.test(string) ){
+       //var a = string.split(":");
        var span = document.createElement('span');
        string = string.replace(regex,"<a href=\"http://www.openstreetmap.org/$1\" target=\"_blank\">$1</a>");
+       string = string.replace(regex2,"<a href=\"$1\" target=\"_blank\">$2</a>");
        span.innerHTML = string;
        e.append(span);
-    } else{
+    } else {
        e.append(document.createTextNode(string) );
     };
     e.append(document.createElement('br'));
