@@ -25,9 +25,13 @@
 </br>
 <input type="button" value="Submit" id="submit" >
 <input type="button" value="Bookmark this query" id="query" >
+</br>
 </div>
 
 <a id="link" style="display: none;" target="_blank"> Link </a>
+
+<table id="myTable">
+</table>
 
 <div id="output">
 </div>
@@ -51,17 +55,14 @@
 	   from = from.split("_");
 	   to = to.split("_");
 	   from = from[0] + "T" + from[1] + "Z";
-			    to = to[0] + "T" + to[1] + "Z";
-			    var userarr = []; 
-			    if (user !== "") {
-//TODO - userarr needs to be set to array derived from user
-			    userarr = [user];
-			    };
+	   to = to[0] + "T" + to[1] + "Z";
+	   var userarr = []; 
+	   if (user !== "") {
+		userarr = user.split(",");
+	   };
            var response = document.getElementById("rc").checked;
            var query = document.getElementById("overpass").checked;
 	   consolelog("");
-           consolelog(response);
-                      consolelog(query);
 	   analyse(userarr,array,from,to,response,query);
     });
   });
@@ -110,9 +111,18 @@
     e.append(document.createElement('br'));
     };
   
-  function createTable(tableData) {
-    var table = document.createElement('table');
+  function createTable(tableData,tableInfo) {
+    var table = document.createElement('table');;
     var tableBody = document.createElement('tbody');
+
+    var row = document.createElement('tr');
+    tableData[0].forEach(function(cellData) {
+        var cell = document.createElement('th');
+        cell.appendChild(document.createTextNode(cellData));
+        row.appendChild(cell);
+      });
+    tableBody.appendChild(row);
+    tableData.shift();      
 
     tableData.forEach(function(rowData) {
       var row = document.createElement('tr');
@@ -127,9 +137,21 @@
     });
   
     table.appendChild(tableBody);
-    document.body.appendChild(table);
+    t = document.getElementById("myTable");
+    t.append(document.createTextNode(tableInfo) );
+    t.appendChild(table);
   }
 </script>
+
+<style>
+table {
+    border-spacing: 5px;
+    text-align: center;
+}
+
+</style>
+
+
 
 <address>
 </address>
