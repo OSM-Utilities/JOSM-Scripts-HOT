@@ -23,9 +23,9 @@
 <i>building,highway,landuse,natural,waterway,railway,barrier,historic,amenity</i><br/>
 <!-- <input type="text" id="acceptedTags" value="building,highway,landuse,natural,waterway,railway,barrier,historic,amenity"> <br/> -->
 <br/>
-<input type="checkbox" id="rc" checked>Show user stats from Red Cross API.<br/>
-<input type="checkbox" id="overpass" checked>Run and show results of overpass query <br/>
-<input type="checkbox" id="alwaysShowOPdetails">Always show details from overpass query, even if here are no errors for a particular user.<br/>
+<input type="checkbox" id="RedCrossStats" checked>Show user stats from Red Cross API.<br/>
+<input type="checkbox" id="queryResults" checked>Run and show results of overpass query <br/>
+<input type="checkbox" id="alwaysShowOPdetails">Always show details from overpass query, even if there are no errors for a particular user.<br/>
 <input type="checkbox" id="showAPIqueries">Show the API queries<br/>
 <br/>
 <input type="button" value="Submit" id="submit" >
@@ -66,10 +66,12 @@
 	   if (user !== "") {
 		userarr = user.split(",");
 	   };
-           var response = document.getElementById("rc").checked;
-           var query = document.getElementById("overpass").checked;
+           var RedCrossStats = document.getElementById("RedCrossStats").checked;
+           var queryResults = document.getElementById("queryResults").checked;
+		   var alwaysShowOPdetails = document.getElementById("alwaysShowOPdetails").checked;
+		   var showAPIqueries = document.getElementById("showAPIqueries").checked;
 	   consolelog("");
-	   analyse(userarr,array,from,to,response,query);
+	   analyse(userarr,array,from,to,RedCrossStats,queryResults,alwaysShowOPdetails,showAPIqueries);
     });
   });
   
