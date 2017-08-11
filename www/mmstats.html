@@ -38,7 +38,7 @@
 <a id="link" style="display: none;" target="_blank"> Link </a>
 
 <div id="backInput">
-<input type="button" value="Show query / cancel" id="back" style="display: none;">
+<input type="button" value="Show query" id="back" style="display: none;">
 </div>
 
 <table id="myTable">
@@ -114,7 +114,7 @@
   $(document).ready(function()
       {  
         $("#back").click(function() {
-		window.location.reload();
+		window.location.reload();  //BH: Would be better to just show the div that has the query details. Then the query can keep running.
          });  
        });   
 
