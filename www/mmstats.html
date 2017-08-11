@@ -130,7 +130,8 @@ Zambia: <input type="button" value="21.9993509,-18.0766965,33.7025,-8.2712822" i
                 var from = document.getElementById("from").value;
                 var to = document.getElementById("to").value;
                 var user = document.getElementById("user").value;
-                var url = "mmstats.html?hashtag="+hashtag+"&from="+from+"&to="+to+"&user="+user;
+		var bbox = document.getElementById("bbox").value;
+                var url = "mmstats.html?hashtag="+hashtag+"&from="+from+"&to="+to+"&user="+user+"&bbox="+bbox;
 
 	        var RedCrossStats = document.getElementById("RedCrossStats").checked;
 	        var queryResults = document.getElementById("queryResults").checked;
@@ -157,6 +158,7 @@ Zambia: <input type="button" value="21.9993509,-18.0766965,33.7025,-8.2712822" i
         if (user !== "") {
                 userarr = user.split(",");
         };
+        var bbox = document.getElementById("bbox").value;
         var RedCrossStats = document.getElementById("RedCrossStats").checked;
         var queryResults = document.getElementById("queryResults").checked;
         var alwaysShowOPdetails = document.getElementById("alwaysShowOPdetails").checked;
