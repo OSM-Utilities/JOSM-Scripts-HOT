@@ -8,22 +8,27 @@
   <h1>mmstats</h1>
   <script src="../lib/jquery.js"></script>
   <script src="../lib/mmstats.js"></script>
-
-
-<div id="getInput"
-<p>Type in hashtags (omit #, comma-separated):</p>
+<h2>Your query</h2>
+<div id="getInput">
+<p><b>Hastags and users.</b> Provide hashtags (omit #, comma-separated). This will be used to obtain the user names that have contributed under these hashtags.</p>
 <input type="text" id ="hashtag" style="width:50%"> <br/>
-<p>Type in a start time (format yyyy-mm-dd_hh:mm:ss):</p>
-<input type="text" id ="from"  value=""> <br/>
-<input type="button" value="Now" id="now" >
-<p>Type in an end time (format yyyy-mm-dd_hh:mm:ss):</p>
-<input type="text" id="to" value=""> <br/>
-<p>Type in a user ID:</p>
+<p>If you wish, you can provide a list of of user IDs (which will be added to the list derived from the hashtags).:</p>
 <input type="text" id="user" value=""> <br/>
-<p>Tags used in project: (cannot be changed yet))</p>
+<p><b>Narrow it down to your mapathon.</b> Now that that you have the full user list, you need to narrow down the list of edits, either to the duration of your mapathon, or to a geographical areas. If you do not do that, this tool will retrieve all edits (anywhere, anytime) for the above user list.</p>
+<p>Provide a start time (format yyyy-mm-dd_hh:mm:ss).</p>
+<input type="text" id ="from"  value=""> <input type="button" value="Now" id="now" ><br/>
+<p>Provide an end time (format yyyy-mm-dd_hh:mm:ss):</p>
+<input type="text" id="to" value=""> <br/>
+<p>Provide an area (bounding box; left,bottom,right,top; bbox = min Longitude , min Latitude , max Longitude , max Latitude; use a map / JOSM to copy/paste coords of SW and NE point of bounding box; in JOSM, Download->Areas around places, select area, then switch to bookmarks or bounding box tab, and copy values):</p>
+<input type="text" id="bbox" value="">,
+Tanzania: <input type="button" value="29.3269773,-11.761254,40.6584071,-0.9854812" id="Tanzania" >
+Zambia: <input type="button" value="21.9993509,-18.0766965,33.7025,-8.2712822" id="Zambia" >
+<br/> 
+<p><b>Provide the tags the mappers are supposed to use.</b> Tags used in project: (cannot be changed yet)</p>
 <i>building,highway,landuse,natural,waterway,railway,barrier,historic,amenity</i><br/>
 <!-- <input type="text" id="acceptedTags" value="building,highway,landuse,natural,waterway,railway,barrier,historic,amenity"> <br/> -->
 <br/>
+<b>Configure</b><br/>
 <input type="checkbox" id="RedCrossStats" checked>Show user stats from Red Cross API.<br/>
 <input type="checkbox" id="queryResults" checked>Run and show results of overpass query <br/>
 <input type="checkbox" id="alwaysShowOPdetails" >Always show details from overpass query, even if there are no errors for a particular user.<br/>
@@ -35,11 +40,13 @@
 <br/>
 </div>
 
-<a id="link" style="display: none;" target="_blank"> Link </a>
+<div><a id="link" style="display: none;" target="_blank"> Bookmark this link </a></div>
 
 <div id="backInput">
 <input type="button" value="Show query" id="back" style="display: none;">
 </div>
+
+<h2>Output</h2>
 
 <table id="myTable">
 </table>
