@@ -8,8 +8,8 @@
   <h1>mmstats</h1>
   <script src="../lib/jquery.js"></script>
   <script src="../lib/mmstats.js"></script>
-<h2>Your query</h2>
 <div id="getInput">
+<h2>Your query</h2>
 <p><b>Hastags and users.</b> Provide hashtags (omit #, comma-separated). This will be used to obtain the user names that have contributed under these hashtags.</p>
 <input type="text" id ="hashtag" style="width:50%"> <br/>
 <p>If you wish, you can provide a list of of user IDs (which will be added to the list derived from the hashtags).:</p>
@@ -43,7 +43,8 @@
 <div><a id="link" style="display: none;" target="_blank"> Bookmark this link </a></div>
 
 <div id="backInput">
-<input type="button" value="Show query" id="showquery" style="display: none;">
+<!--  <input type="button" value="Show query" id="showquery" style="display: none;"> -->
+  <input type="button" value="Show query" id="showquery">
 </div>
 
 <h2>Output</h2>
@@ -56,7 +57,7 @@
 
 <script>
     var parsed = getUrlVars();
-	var parameters = ["hashtag","from","to","user"]; 
+	var parameters = ["hashtag","from","to","user","bbox"]; 
 	for (var i = 0; i < parameters.length; i++) {
 	        if (parsed[parameters[i]] != undefined){
 		    document.getElementById(parameters[i]).value = parsed[parameters[i]];
@@ -78,7 +79,7 @@
     $('#submit').click(function(){
 	var url = generateURL(false);
 	window.history.pushState('', "mmstats",url);
-        $("#back").show();
+        $("#showquery").show();
 	$("#link").hide();
 	runmmstats();
     });
