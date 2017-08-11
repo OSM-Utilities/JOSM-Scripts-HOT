@@ -37,6 +37,10 @@
 
 <a id="link" style="display: none;" target="_blank"> Link </a>
 
+<div id="backInput">
+<input type="button" value="Back to query" id="back" style="display: none;">
+</div>
+
 <table id="myTable">
 </table>
 
@@ -55,7 +59,7 @@
        var boxes = ["RedCrossStats","queryResults","alwaysShowOPdetails","showAPIqueries"]; 
         for (var i = 0; i < boxes.length; i++) {
         	if (parsed[boxes[i]] != undefined){
-                	document.getElementById(boxes[i]).checked = (parsed[boxes[i]] > 0);
+                	document.getElementById(boxes[i]).checked = (parsed[boxes[i]] > 0 || parsed[boxes[i]] == 'true');
             	}
 	}
 
@@ -65,56 +69,28 @@
 
   $(document).ready(function(){
     $('#submit').click(function(){
+	var url = generateURL(false);
+	window.history.pushState('', "mmstats",url);
+        $("#back").show();
 	runmmstats();
     });
   });
 
- function runmmstats(){
-	$("#getInput").hide();
-        var user = document.getElementById("user").value;
-        var hashtag = document.getElementById("hashtag").value;
-        var array = hashtag.split(',');
-        var from = document.getElementById("from").value;
-        var to = document.getElementById("to").value;
-        from = from.split("_");
-        to = to.split("_");
-        from = from[0] + "T" + from[1] + "Z";
-        to = to[0] + "T" + to[1] + "Z";
-        var userarr = []; 
-        if (user !== "") {
-        	userarr = user.split(",");
-        };
-        var RedCrossStats = document.getElementById("RedCrossStats").checked;
-        var queryResults = document.getElementById("queryResults").checked;
-        var alwaysShowOPdetails = document.getElementById("alwaysShowOPdetails").checked;
-        var showAPIqueries = document.getElementById("showAPIqueries").checked;
-        consolelog("");
-        analyse(userarr,array,from,to,RedCrossStats,queryResults,alwaysShowOPdetails,showAPIqueries);
-  };
-
   $(document).ready(function()
       {  
         $("#query").click(function() {
-		var hashtag = document.getElementById("hashtag").value;
-		var from = document.getElementById("from").value;
-		var to = document.getElementById("to").value;
-		var user = document.getElementById("user").value;
-		var url = "mmstats.html?hashtag="+hashtag+"&from="+from+"&to="+to+"&user="+user;
+		url = generateURL(false);
 		document.getElementById("link").setAttribute("href",url);
-         $("#link").toggle()
+	         $("#link").toggle()
          });  
        });   
 	   
   $(document).ready(function()
       {  
         $("#queryRun").click(function() {
-                var hashtag = document.getElementById("hashtag").value;
-                var from = document.getElementById("from").value;
-                var to = document.getElementById("to").value;
-                var user = document.getElementById("user").value;
-                var url = "mmstats.html?hashtag="+hashtag+"&from="+from+"&to="+to+"&user="+user+"&autorun=1";
+		var url = generateURL(true);
                 document.getElementById("link").setAttribute("href",url);
-         $("#link").toggle()
+	         $("#link").toggle()
          });  
        });  
 
@@ -133,6 +109,53 @@
 		document.getElementById("to").value = datetime;
          });  
        });      
+
+  $(document).ready(function()
+      {  
+        $("#back").click(function() {
+		window.location.reload();
+         });  
+       });   
+
+ function generateURL(autorun){
+                var hashtag = document.getElementById("hashtag").value;
+                var from = document.getElementById("from").value;
+                var to = document.getElementById("to").value;
+                var user = document.getElementById("user").value;
+                var url = "mmstats.html?hashtag="+hashtag+"&from="+from+"&to="+to+"&user="+user;
+
+	        var RedCrossStats = document.getElementById("RedCrossStats").checked;
+	        var queryResults = document.getElementById("queryResults").checked;
+        	var alwaysShowOPdetails = document.getElementById("alwaysShowOPdetails").checked;
+	        var showAPIqueries = document.getElementById("showAPIqueries").checked;
+		url += "&RedCrossStats="+RedCrossStats+"&queryResults="+queryResults+"&alwaysShowOPdetails="+alwaysShowOPdetails+"&showAPIqueries="+showAPIqueries;
+		if (autorun == true)
+			url += "&autorun=1";
+		return url;
+ };
+
+ function runmmstats(){
+        $("#getInput").hide();
+        var user = document.getElementById("user").value;
+        var hashtag = document.getElementById("hashtag").value;
+        var array = hashtag.split(',');
+        var from = document.getElementById("from").value;
+        var to = document.getElementById("to").value;
+        from = from.split("_");
+        to = to.split("_");
+        from = from[0] + "T" + from[1] + "Z";
+        to = to[0] + "T" + to[1] + "Z";
+        var userarr = []; 
+        if (user !== "") {
+                userarr = user.split(",");
+        };
+        var RedCrossStats = document.getElementById("RedCrossStats").checked;
+        var queryResults = document.getElementById("queryResults").checked;
+        var alwaysShowOPdetails = document.getElementById("alwaysShowOPdetails").checked;
+        var showAPIqueries = document.getElementById("showAPIqueries").checked;
+        consolelog("");
+        analyse(userarr,array,from,to,RedCrossStats,queryResults,alwaysShowOPdetails,showAPIqueries);
+  };
 
   function consolelog(string) {
     var e = document.getElementById("output");
@@ -188,7 +211,13 @@ table {
     border-spacing: 5px;
     text-align: center;
 }
+tr:nth-child(2) {
+    background-color:yellow;
+}
 
+td {
+  padding: 0 15px;
+}
 </style>
 
 
