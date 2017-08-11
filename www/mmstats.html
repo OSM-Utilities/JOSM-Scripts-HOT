@@ -9,6 +9,7 @@
   <script src="../lib/jquery.js"></script>
   <script src="../lib/mmstats.js"></script>
 
+
 <div id="getInput"
 <p>Type in hashtags (omit #, comma-separated):</p>
 <input type="text" id ="hashtag" style="width:50%"> <br/>
@@ -25,7 +26,7 @@
 <br/>
 <input type="checkbox" id="RedCrossStats" checked>Show user stats from Red Cross API.<br/>
 <input type="checkbox" id="queryResults" checked>Run and show results of overpass query <br/>
-<input type="checkbox" id="alwaysShowOPdetails">Always show details from overpass query, even if there are no errors for a particular user.<br/>
+<input type="checkbox" id="alwaysShowOPdetails" >Always show details from overpass query, even if there are no errors for a particular user.<br/>
 <input type="checkbox" id="showAPIqueries">Show the API queries<br/>
 <br/>
 <input type="button" value="Submit" id="submit" >
@@ -46,35 +47,51 @@
     var parsed = getUrlVars();
 	var parameters = ["hashtag","from","to","user"]; 
 	for (var i = 0; i < parameters.length; i++) {
-        if (parsed[parameters[i]] != undefined){
+	        if (parsed[parameters[i]] != undefined){
 		    document.getElementById(parameters[i]).value = parsed[parameters[i]];
 		}
-    }
+	}
+		
+       var boxes = ["RedCrossStats","queryResults","alwaysShowOPdetails","showAPIqueries"]; 
+        for (var i = 0; i < boxes.length; i++) {
+        	if (parsed[boxes[i]] != undefined){
+                	document.getElementById(boxes[i]).checked = (parsed[boxes[i]] > 0);
+            	}
+	}
+
+        if (parsed["autorun"] != undefined){
+		runmmstats();
+	}
 
   $(document).ready(function(){
     $('#submit').click(function(){
-	   var user = document.getElementById("user").value;
-	   var hashtag = document.getElementById("hashtag").value;
-	   var array = hashtag.split(',');
-	   var from = document.getElementById("from").value;
-	   var to = document.getElementById("to").value;
-	   from = from.split("_");
-	   to = to.split("_");
-	   from = from[0] + "T" + from[1] + "Z";
-	   to = to[0] + "T" + to[1] + "Z";
-	   var userarr = []; 
-	   if (user !== "") {
-		userarr = user.split(",");
-	   };
-           var RedCrossStats = document.getElementById("RedCrossStats").checked;
-           var queryResults = document.getElementById("queryResults").checked;
-		   var alwaysShowOPdetails = document.getElementById("alwaysShowOPdetails").checked;
-		   var showAPIqueries = document.getElementById("showAPIqueries").checked;
-	   consolelog("");
-	   analyse(userarr,array,from,to,RedCrossStats,queryResults,alwaysShowOPdetails,showAPIqueries);
+	runmmstats();
     });
   });
-  
+
+ function runmmstats(){
+	$("#getInput").hide();
+        var user = document.getElementById("user").value;
+        var hashtag = document.getElementById("hashtag").value;
+        var array = hashtag.split(',');
+        var from = document.getElementById("from").value;
+        var to = document.getElementById("to").value;
+        from = from.split("_");
+        to = to.split("_");
+        from = from[0] + "T" + from[1] + "Z";
+        to = to[0] + "T" + to[1] + "Z";
+        var userarr = []; 
+        if (user !== "") {
+        	userarr = user.split(",");
+        };
+        var RedCrossStats = document.getElementById("RedCrossStats").checked;
+        var queryResults = document.getElementById("queryResults").checked;
+        var alwaysShowOPdetails = document.getElementById("alwaysShowOPdetails").checked;
+        var showAPIqueries = document.getElementById("showAPIqueries").checked;
+        consolelog("");
+        analyse(userarr,array,from,to,RedCrossStats,queryResults,alwaysShowOPdetails,showAPIqueries);
+  };
+
   $(document).ready(function()
       {  
         $("#query").click(function() {
@@ -88,6 +105,19 @@
          });  
        });   
 	   
+  $(document).ready(function()
+      {  
+        $("#queryRun").click(function() {
+                var hashtag = document.getElementById("hashtag").value;
+                var from = document.getElementById("from").value;
+                var to = document.getElementById("to").value;
+                var user = document.getElementById("user").value;
+                var url = "mmstats.html?hashtag="+hashtag+"&from="+from+"&to="+to+"&user="+user+"&autorun=1";
+                document.getElementById("link").setAttribute("href",url);
+         $("#link").toggle()
+         });  
+       });  
+
   $(document).ready(function()
       {  
         $("#now").click(function() {
