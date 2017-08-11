@@ -159,12 +159,13 @@ Zambia: <input type="button" value="21.9993509,-18.0766965,33.7025,-8.2712822" i
                 userarr = user.split(",");
         };
         var bbox = document.getElementById("bbox").value;
+        var boundary_limit = bbox.split(',');
         var RedCrossStats = document.getElementById("RedCrossStats").checked;
         var queryResults = document.getElementById("queryResults").checked;
         var alwaysShowOPdetails = document.getElementById("alwaysShowOPdetails").checked;
         var showAPIqueries = document.getElementById("showAPIqueries").checked;
         consolelog("");
-        analyse(userarr,array,from,to,RedCrossStats,queryResults,alwaysShowOPdetails,showAPIqueries);
+        analyse(userarr,array,from,to,RedCrossStats,queryResults,alwaysShowOPdetails,showAPIqueries,boundary_limit); //,boundary_add
   };
 
   function consolelog(string) {
