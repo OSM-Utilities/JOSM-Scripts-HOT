@@ -72,6 +72,7 @@
 	var url = generateURL(false);
 	window.history.pushState('', "mmstats",url);
         $("#back").show();
+	$("#link").hide();
 	runmmstats();
     });
   });
@@ -81,7 +82,7 @@
         $("#query").click(function() {
 		url = generateURL(false);
 		document.getElementById("link").setAttribute("href",url);
-	         $("#link").toggle()
+	         $("#link").show()
          });  
        });   
 	   
@@ -90,7 +91,7 @@
         $("#queryRun").click(function() {
 		var url = generateURL(true);
                 document.getElementById("link").setAttribute("href",url);
-	         $("#link").toggle()
+	         $("#link").show()
          });  
        });  
 
