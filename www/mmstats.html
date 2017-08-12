@@ -15,12 +15,12 @@
 <p>If you wish, you can provide a list of of user IDs (which will be added to the list derived from the hashtags).:</p>
 <input type="text" id="user" value=""> <br/>
 <p><b>Narrow it down to your mapathon.</b> Now that that you have the full user list, you need to narrow down the list of edits, either to the duration of your mapathon, or to a geographical areas. If you do not do that, this tool will retrieve all edits (anywhere, anytime) for the above user list.</p>
-<p>Provide a start time (format yyyy-mm-dd_hh:mm:ss).</p>
-<input type="text" id ="from"  value=""> <input type="button" value="Now" id="now" ><br/>
-<p>Provide an end time (format yyyy-mm-dd_hh:mm:ss):</p>
-<input type="text" id="to" value=""> <br/>
-<p>Provide an area (bounding box; left,bottom,right,top; bbox = min Longitude , min Latitude , max Longitude , max Latitude; use a map / JOSM to copy/paste coords of SW and NE point of bounding box; in JOSM, Download->Areas around places, select area, then switch to bookmarks or bounding box tab, and copy values):</p>
-<input type="text" id="bbox" value="">,
+<p>Provide a start time (format yyyy-mm-dd_hh:mm:ss): <input type="text" id ="from"  value="">;
+provide an end time (format yyyy-mm-dd_hh:mm:ss): <input type="text" id="to" value="">.
+Set to <input type="button" value="Now + 3 hours" id="now" >.
+</p>
+<p>Provide an area (bounding box; left,bottom,right,top; bbox = min Longitude , min Latitude , max Longitude , max Latitude; <i>use a map / JOSM to copy/paste coords of SW and NE point of bounding box; in JOSM, Download->Areas around places, select area, then switch to bookmarks or bounding box tab, and copy values</i>):</p>
+<input type="text" id="bbox" value="" style="width:50%">,
 <button value="29.3269773,-11.761254,40.6584071,-0.9854812" id="tz" >Tanzania</button>
 <button value="21.9993509,-18.0766965,33.7025,-8.2712822" id="zm" >Zambia</button>
 <br/> 
@@ -43,8 +43,7 @@
 <div><a id="link" style="display: none;" target="_blank"> Bookmark this link </a></div>
 
 <div id="backInput">
-<!--  <input type="button" value="Show query" id="showquery" style="display: none;"> -->
-  <input type="button" value="Show query" id="showquery">
+  <input type="button" value="Show/edit query" id="showquery" style="display: none;">
 </div>
 
 <h2>Output</h2>
@@ -79,6 +78,7 @@
     $('#submit').click(function(){
 	var url = generateURL(false);
 	window.history.pushState('', "mmstats",url);
+        $("#getInput").hide();
         $("#showquery").show();
 	$("#link").hide();
 	runmmstats();
@@ -127,11 +127,13 @@
 
   $(document).ready(function()
       {  
-        $("#showquery").click(function() {
-			    $("#getInput").hide();
-//			    window.location.reload();  //BH: Would be better to just show the div that has the query details. Then the query can keep running.
-         });  
-       });   
+ $("#showquery").click(function() {
+    //BH: Would be better to just show the div that has the query details. Then the query can keep running.
+ $("#getInput").show();
+ $("#showquery").hide();
+    //			    window.location.reload();  
+    });  
+ });   
 
  function generateURL(autorun){
                 var hashtag = document.getElementById("hashtag").value;
@@ -152,7 +154,6 @@
  };
 
  function runmmstats(){
-        $("#getInput").hide();
         var user = document.getElementById("user").value;
         var hashtag = document.getElementById("hashtag").value;
         var array = hashtag.split(',');
@@ -167,7 +168,8 @@
                 userarr = user.split(",");
         };
         var bbox = document.getElementById("bbox").value;
-        var boundary_limit = bbox.split(',');
+        var bl = bbox.split(',');
+	var boundary_limit = [ bl[1], bl[0], bl[3], bl[2] ];
         var RedCrossStats = document.getElementById("RedCrossStats").checked;
         var queryResults = document.getElementById("queryResults").checked;
         var alwaysShowOPdetails = document.getElementById("alwaysShowOPdetails").checked;
