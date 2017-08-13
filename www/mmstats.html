@@ -78,8 +78,8 @@ Set to <input type="button" value="Now + 3 hours" id="now" >.</br>
     $('#submit').click(function(){
 	var url = generateURL(false);
 	window.history.pushState('', "mmstats",url);
-        $("#getInput").hide();
-        $("#showquery").show();
+    $("#getInput").hide();
+    $("#showquery").show();
 	$("#link").hide();
 	runmmstats();
     });
@@ -196,13 +196,16 @@ Set to <input type="button" value="Now + 3 hours" id="now" >.</br>
     };
   
   function createTable(tableData,tableInfo) {
-    var table = document.createElement('table');;
+    var table = document.createElement('table');
     var tableBody = document.createElement('tbody');
+	var regex = /\[((user|node|way|relation)\/[^\]]+)\]/gi;
+    var regex2 = /\[(http[^\] ]+) ([^\]]+)\]/gi;
+	var regex3 = /(hotosm-project-)(\d+)/gi;
 
     var row = document.createElement('tr');
     tableData[0].forEach(function(cellData) {
         var cell = document.createElement('th');
-        cell.appendChild(document.createTextNode(cellData));
+		cell.appendChild(document.createTextNode(cellData));
         row.appendChild(cell);
       });
     tableBody.appendChild(row);
@@ -213,8 +216,16 @@ Set to <input type="button" value="Now + 3 hours" id="now" >.</br>
 
       rowData.forEach(function(cellData) {
         var cell = document.createElement('td');
-        cell.appendChild(document.createTextNode(cellData));
-        row.appendChild(cell);
+		if ( regex.test(cellData) || regex2.test(cellData) ){
+			var span = document.createElement('span');
+			cellData = cellData.replace(regex,"<a href=\"http://www.openstreetmap.org/$1\" target=\"_blank\">$1</a>");
+			cellData = cellData.replace(regex2,"<a href=\"$1\" target=\"_blank\">$2</a>");
+			span.innerHTML = cellData;
+			cell.appendChild(span);			
+		} else {
+			cell.appendChild(document.createTextNode(cellData));
+		}
+		row.appendChild(cell);
       });
   
       tableBody.appendChild(row);
@@ -222,7 +233,14 @@ Set to <input type="button" value="Now + 3 hours" id="now" >.</br>
   
     table.appendChild(tableBody);
     t = document.getElementById("myTable");
-    t.append(document.createTextNode(tableInfo) );
+	if ( regex3.test(tableInfo) ){
+		var span = document.createElement('span');
+		tableInfo = tableInfo.replace(regex3,"<a href=\"http://tasks.hotosm.org/project/$2\" target=\"_blank\">$1$2</a>");
+		span.innerHTML = tableInfo;
+		t.appendChild(span);			
+	} else {
+		t.append(document.createTextNode(tableInfo) );
+	};
     t.appendChild(table);
   }
 </script>
