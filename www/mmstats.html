@@ -8,6 +8,7 @@
   <h1>mmstats</h1>
   <script src="../lib/jquery.js"></script>
   <script src="../lib/mmstats.js"></script>
+  <script src="../lib/sorttable.js"></script>
 <div id="getInput">
 <h2>Your query</h2>
 <p><b>Hastags and users.</b> Provide hashtags (omit #, comma-separated). This will be used to obtain the user names that have contributed under these hashtags.</p>
@@ -48,7 +49,7 @@ Set to <input type="button" value="Now + 3 hours" id="now" >.</br>
 
 <h2>Output</h2>
 
-<table id="myTable">
+<table id="myTable" class="sortable">
 </table>
 
 <div id="output">
@@ -202,7 +203,7 @@ Set to <input type="button" value="Now + 3 hours" id="now" >.</br>
     var regex2 = /\[(http[^\] ]+) ([^\]]+)\]/gi;
 	var regex3 = /(hotosm-project-)(\d+)/gi;
 
-    var row = document.createElement('tr');
+	var row = document.createElement('tr');
     tableData[0].forEach(function(cellData) {
         var cell = document.createElement('th');
 		cell.appendChild(document.createTextNode(cellData));
@@ -241,6 +242,7 @@ Set to <input type="button" value="Now + 3 hours" id="now" >.</br>
 	} else {
 		t.append(document.createTextNode(tableInfo) );
 	};
+	sorttable.makeSortable(table);
     t.appendChild(table);
   }
 </script>
@@ -250,12 +252,23 @@ table {
     border-spacing: 5px;
     text-align: center;
 }
-tr:nth-child(2) {
-    background-color:yellow;
+tr:nth-child(1) {
+    font-weight: bold;
 }
 
 td {
   padding: 0 15px;
+}
+
+table.sortable thead {
+    background-color:#eee;
+    color:#666666;
+    font-weight: bold;
+    cursor: default;
+}
+
+table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after { 
+    content: " \25B4\25BE" 
 }
 </style>
 
