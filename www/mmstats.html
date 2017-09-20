@@ -169,8 +169,12 @@ Set to <input type="button" value="Now + 3 hours" id="now" >.</br>
                 userarr = user.split(",");
         };
         var bbox = document.getElementById("bbox").value;
-        var bl = bbox.split(',');
-	var boundary_limit = [ bl[1], bl[0], bl[3], bl[2] ];
+	if (bbox !== "") {
+	        var bl = bbox.split(',');
+	        var boundary_limit = [ bl[1], bl[0], bl[3], bl[2] ];
+	} else {
+	var boundary_limit = 0;
+	};
         var RedCrossStats = document.getElementById("RedCrossStats").checked;
         var queryResults = document.getElementById("queryResults").checked;
         var alwaysShowOPdetails = document.getElementById("alwaysShowOPdetails").checked;
@@ -242,6 +246,9 @@ Set to <input type="button" value="Now + 3 hours" id="now" >.</br>
 	} else {
 		t.append(document.createTextNode(tableInfo) );
 	};
+	var br = document.createElement("br");
+	t.appendChild(br);
+	t.append(document.createTextNode("(these are the users that contributed to this hashtag at any time, not just during the mapathon)"));
 	sorttable.makeSortable(table);
     t.appendChild(table);
   }
