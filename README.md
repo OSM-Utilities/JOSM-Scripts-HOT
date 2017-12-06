@@ -6,7 +6,7 @@ How to install: see http://bjohas.de/wiki/Maps/JOSM/scripting_plugin and then cl
 The main scripts are:
 - markResAreas.js 
 - addOLC.js
-- nodeBuilding2Way.js
+- processNodeBuildings.js (previously nodeBuilding2Way.js)
 - www/mmstats.html
 
 Third-party / our utilities (in lib/ folder):
